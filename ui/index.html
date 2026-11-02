@@ -4085,7 +4085,7 @@
           const nDeg = deg[n.id] || 0;
           const baseR = getNodeRadius(n, nDeg);
           const isHot = (n.activation_count || 0) >= 2 || (n.base_weight || 1.0) >= 0.95 || neuroWaveNodes.has(n.id);
-          const rScreen = Math.max(4, baseR * proj.scale * (isHot ? pulseFactor : 1.0));
+          const rScreen = Math.max(0.6, baseR * proj.scale * (isHot ? pulseFactor : 1.0));
           const bw = Math.max(120, (n.name?.length || 8) * 8.5 + 28) * proj.scale;
           const bh = 38 * proj.scale;
           projectedScreenNodes[n.id] = { sx: proj.sx, sy: proj.sy, rScreen, bw, bh, depth: proj.depth, scale: proj.scale };
@@ -4128,8 +4128,10 @@
             ctx.lineWidth = 0.8;
             ctx.shadowBlur = 0;
           } else {
-            ctx.strokeStyle = 'rgba(168, 85, 247, 0.40)';
-            ctx.lineWidth = Math.max(0.9, s.weight * 1.8 * ((pn1.scale + pn2.scale) * 0.5));
+            const avgScale = (pn1.scale + pn2.scale) * 0.5;
+            const alpha = Math.min(0.65, Math.max(0.18, 0.18 + s.weight * 0.32));
+            ctx.strokeStyle = `rgba(239, 68, 68, ${alpha})`;
+            ctx.lineWidth = Math.max(0.6, s.weight * 1.6 * avgScale);
             ctx.shadowBlur = 0;
           }
           ctx.stroke();
@@ -4162,8 +4164,18 @@
 
           if (graphStyle === 'orbs') {
             // ==========================================
-            // 3D ORBS MODE
+            // 3D ORBS MODE (LOD: Clean dots when zoomed out, glowing orbs when close)
             // ==========================================
+            if (proj.scale < 0.14 && !isSel && !isHov && !waveInfo) {
+              if (rScreen >= 0.5) {
+                ctx.fillStyle = isNeighbor ? '#ef4444' : color;
+                ctx.beginPath();
+                ctx.arc(proj.sx, proj.sy, Math.max(0.6, rScreen), 0, 2 * Math.PI);
+                ctx.fill();
+              }
+              continue;
+            }
+
             if (waveInfo && !isDimmed) {
               const rippleR = rScreen + 4 + ((wavePhase * 16) % 16);
               ctx.beginPath();
@@ -4179,37 +4191,44 @@
             } else if (isHov) {
               ctx.shadowColor = color;
               ctx.shadowBlur = 14;
-            } else {
-              ctx.shadowBlur = Math.min(12, (n.base_weight || 1.0) * 6);
+            } else if (rScreen > 3) {
+              ctx.shadowBlur = Math.min(10, (n.base_weight || 1.0) * 5);
               ctx.shadowColor = color;
+            } else {
+              ctx.shadowBlur = 0;
             }
 
             ctx.beginPath();
-            ctx.arc(proj.sx, proj.sy, rScreen, 0, 2 * Math.PI);
+            ctx.arc(proj.sx, proj.sy, Math.max(0.7, rScreen), 0, 2 * Math.PI);
             if (isDimmed) {
               ctx.fillStyle = 'rgba(25, 25, 32, 0.35)';
               ctx.fill();
             } else {
-              const grad = ctx.createRadialGradient(
-                proj.sx - rScreen * 0.32,
-                proj.sy - rScreen * 0.32,
-                rScreen * 0.1,
-                proj.sx,
-                proj.sy,
-                rScreen
-              );
-              grad.addColorStop(0, '#ffffff');
-              grad.addColorStop(0.32, isSel ? '#ef4444' : (waveInfo ? '#38bdf8' : color));
-              grad.addColorStop(1, '#070913');
-              ctx.fillStyle = grad;
-              ctx.fill();
-              ctx.strokeStyle = isSel ? '#ffffff' : (waveInfo ? '#7dd3fc' : color);
-              ctx.lineWidth = isSel || waveInfo ? 2.2 : 1.2;
-              ctx.stroke();
+              if (rScreen < 2.5) {
+                ctx.fillStyle = isSel ? '#ffffff' : (waveInfo ? '#38bdf8' : color);
+                ctx.fill();
+              } else {
+                const grad = ctx.createRadialGradient(
+                  proj.sx - rScreen * 0.32,
+                  proj.sy - rScreen * 0.32,
+                  rScreen * 0.1,
+                  proj.sx,
+                  proj.sy,
+                  rScreen
+                );
+                grad.addColorStop(0, '#ffffff');
+                grad.addColorStop(0.32, isSel ? '#ef4444' : (waveInfo ? '#38bdf8' : color));
+                grad.addColorStop(1, '#070913');
+                ctx.fillStyle = grad;
+                ctx.fill();
+                ctx.strokeStyle = isSel ? '#ffffff' : (waveInfo ? '#7dd3fc' : color);
+                ctx.lineWidth = isSel || waveInfo ? 2.2 : 1.2;
+                ctx.stroke();
+              }
             }
             ctx.shadowBlur = 0;
 
-            const shouldShowLabel = isSel || isHov || waveInfo || (proj.scale >= 0.45) || (nDeg >= 6 && proj.scale >= 0.2);
+            const shouldShowLabel = isSel || isHov || waveInfo || (proj.scale >= 0.60) || (nDeg >= 8 && proj.scale >= 0.38);
             if (shouldShowLabel && !isDimmed) {
               const label = waveInfo ? `${n.name} (${waveInfo.energy.toFixed(2)})` : n.name;
               ctx.font = (isSel || isHov || waveInfo) ? '700 12px "Inter", "Segoe UI", sans-serif' : '500 11px "Inter", "Segoe UI", sans-serif';
@@ -4224,11 +4243,22 @@
             }
           } else {
             // ==========================================
-            // 3D CARDS MODE (ORBS OFF, PERSPECTIVE CARDS ON)
+            // 3D CARDS MODE (LOD: Clean dots when zoomed out, full cards when close)
             // ==========================================
-            if (proj.scale < 0.22 && !isSel && !isHov && !waveInfo) {
-              ctx.fillStyle = isNeighbor ? '#ef4444' : (n.pinned ? '#f59e0b' : '#374151');
-              ctx.fillRect(proj.sx - 5, proj.sy - 3, 10, 6);
+            if (proj.scale < 0.32 && !isSel && !isHov && !waveInfo) {
+              if (proj.scale >= 0.12) {
+                // When moderately zoomed out, render a clean glowing micro-orb instead of a bulky rectangular box
+                ctx.beginPath();
+                ctx.arc(proj.sx, proj.sy, isNeighbor ? 3.5 : Math.max(1.0, 2.5 * proj.scale * 3), 0, 2 * Math.PI);
+                ctx.fillStyle = isNeighbor ? '#ef4444' : (n.pinned ? '#f59e0b' : color);
+                ctx.fill();
+              } else if (isNeighbor) {
+                ctx.beginPath();
+                ctx.arc(proj.sx, proj.sy, 2.0, 0, 2 * Math.PI);
+                ctx.fillStyle = '#ef4444';
+                ctx.fill();
+              }
+              // If proj.scale < 0.12 (zoomed far out), skip node body so the stunning synapse web is completely unobstructed!
               continue;
             }
 
@@ -4272,28 +4302,30 @@
             ctx.stroke();
             ctx.shadowBlur = 0;
 
-            const typeFontPx = Math.max(7, Math.round(9.5 * proj.scale));
-            const nameFontPx = Math.max(8, Math.round(12 * proj.scale));
+            if (proj.scale >= 0.35 || isSel || isHov || waveInfo) {
+              const typeFontPx = Math.max(7, Math.round(9.5 * proj.scale));
+              const nameFontPx = Math.max(8, Math.round(12 * proj.scale));
 
-            const typeStr = (n.node_type || 'ENTITY').toUpperCase();
-            ctx.fillStyle = isDimmed ? '#4b5563' : (isSel ? '#f87171' : (waveInfo ? '#7dd3fc' : '#9ca3af'));
-            ctx.font = `${typeFontPx}px Consolas, monospace`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'top';
-            ctx.fillText(typeStr, proj.sx, by + Math.max(2, 5 * proj.scale));
+              const typeStr = (n.node_type || 'ENTITY').toUpperCase();
+              ctx.fillStyle = isDimmed ? '#4b5563' : (isSel ? '#f87171' : (waveInfo ? '#7dd3fc' : '#9ca3af'));
+              ctx.font = `${typeFontPx}px Consolas, monospace`;
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'top';
+              ctx.fillText(typeStr, proj.sx, by + Math.max(2, 5 * proj.scale));
 
-            ctx.fillStyle = isDimmed ? '#6b7280' : '#ffffff';
-            ctx.font = `600 ${nameFontPx}px "Inter", "Segoe UI", sans-serif`;
-            ctx.textBaseline = 'bottom';
-            ctx.fillText(n.name, proj.sx, by + bh - Math.max(2, 5 * proj.scale));
+              ctx.fillStyle = isDimmed ? '#6b7280' : '#ffffff';
+              ctx.font = `600 ${nameFontPx}px "Inter", "Segoe UI", sans-serif`;
+              ctx.textBaseline = 'bottom';
+              ctx.fillText(n.name, proj.sx, by + bh - Math.max(2, 5 * proj.scale));
+            }
 
-            if (n.pinned && !isDimmed) {
+            if (n.pinned && !isDimmed && proj.scale >= 0.35) {
               ctx.fillStyle = '#f59e0b';
               ctx.beginPath();
               ctx.arc(bx + 7 * proj.scale, by + 7 * proj.scale, Math.max(1.5, 2.8 * proj.scale), 0, 2 * Math.PI);
               ctx.fill();
             }
-            if (n.has_vector && !isDimmed) {
+            if (n.has_vector && !isDimmed && proj.scale >= 0.35) {
               ctx.fillStyle = '#38bdf8';
               ctx.beginPath();
               ctx.arc(bx + bw - 7 * proj.scale, by + 7 * proj.scale, Math.max(1.5, 2.5 * proj.scale), 0, 2 * Math.PI);
@@ -4690,7 +4722,7 @@
 
         if (graphDimension === '3d') {
           const zoomDelta = e.deltaY < 0 ? 1.15 : 0.87;
-          graphZoom = Math.max(0.15, Math.min(4.5, graphZoom * zoomDelta));
+          graphZoom = Math.max(0.03, Math.min(4.5, graphZoom * zoomDelta));
           updateZoomLabel();
           drawGraph();
           return;

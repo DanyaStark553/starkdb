@@ -1,4 +1,4 @@
-# ⚡ StarkDB (Ultimate Legacy)
+# StarkDB 👑 (Ultimate Legacy)
 
 **High-Performance Embedded Hybrid Graph & Vector Database for AI Agents & Cognitive Systems**
 
@@ -10,7 +10,7 @@
 
 ---
 
-## 📌 Executive Summary
+## Executive Summary
 
 Modern Autonomous AI Agents and Local LLMs struggle with long-term memory. Typical agent architectures glue together three disparate databases:
 1. **Neo4j** for entity relationship graphs (heavy JVM footprint, 1.5GB+ idle RAM, multi-millisecond network hops).
@@ -21,7 +21,7 @@ Modern Autonomous AI Agents and Local LLMs struggle with long-term memory. Typic
 
 ---
 
-## 🚀 Key Architectural Highlights
+## Key Architectural Highlights
 
 * **Zero-Copy Memory-Mapped Engine (`mmap`):** Direct mapped binary layout (48-byte node record, 32-byte synapse record). Zero serialization overhead; instant cold starts (<15 ms).
 * **Tri-Channel Hybrid Retrieval (`bound_attack`):** Fuses Vector similarity, Lexical BM25F, Graph Spreading Activation, and exponential recency decay into an optimal Pareto-ranked context.
@@ -35,23 +35,23 @@ Modern Autonomous AI Agents and Local LLMs struggle with long-term memory. Typic
 
 ---
 
-## 📊 Objective Comparative Benchmarks
+## Objective Comparative Benchmarks
 
-*All benchmarks measured on an AMD Ryzen / Intel Core x86_64 workstation with NVMe storage under release profile (LTO enabled).*
+*All benchmarks measured on an Intel Core x86_64 workstation with NVMe storage under release profile (LTO enabled).*
 
 | Feature / Metric | **StarkDB v1.0** | **Neo4j (Community)** | **ChromaDB / Qdrant** | **SQLite (Relational)** |
 | :--- | :--- | :--- | :--- | :--- |
 | **Architectural Model** | **Unified Hybrid (Graph + Vector + BM25)** | Graph Only (LPG) | Vector Only (Dense Embeddings) | Relational (B-Tree) |
 | **Idle Memory Footprint** | **~18 – 28 MB** (mmap demand-paged) | **~1.2 – 2.4 GB** (JVM runtime) | **~350 – 800 MB** (Python/Rust) | **~5 – 10 MB** |
 | **Cold Boot Latency** | **< 15 ms** (via `.hnsw.cache`) | **12 – 25 seconds** (JVM init) | **1.5 – 3.5 seconds** | **< 5 ms** |
-| **3-Hop Associative Walk** | **~3.2 µs** (Lock-Free BitSet) | **~4.5 – 12.0 ms** (Recursive Cypher) | ❌ *Not Supported* | **~8 – 15 ms** (Recursive CTE) |
-| **Vector Dot Product** | **110 – 160 µs** (SQ8 SIMD) | ❌ *Plugin / Extension required* | **~250 – 700 µs** (f32) | ❌ *External extension only* |
+| **3-Hop Associative Walk** | **~3.2 µs** (Lock-Free BitSet) | **~4.5 – 12.0 ms** (Recursive Cypher) | *Not Supported* | **~8 – 15 ms** (Recursive CTE) |
+| **Vector Dot Product** | **110 – 160 µs** (SQ8 SIMD) | *Plugin / Extension required* | **~250 – 700 µs** (f32) | *External extension only* |
 | **Power-Loss Durability** | **A/B Dual Header + CRC32** | Write-Ahead Log (WAL) | WAL / Periodic Snapshots | WAL / Rollback Journal |
 | **External Dependencies** | **Zero (Single self-contained binary)** | Java JRE 17+ | Python runtime / Docker daemon | Zero |
 
 ---
 
-## 🛠️ Command Syntax & API Reference
+## Command Syntax & API Reference
 
 StarkDB exposes an intuitive command language across the CLI REPL, Raw TCP Socket (`127.0.0.1:9099`), and HTTP REST API (`127.0.0.1:7474`).
 
@@ -119,7 +119,7 @@ HARDWARE                 -- Probe system seek penalty, RAM capacity, and optimal
 
 ---
 
-## 🐍 Python Client SDK Example
+## Python Client SDK Example
 
 A lightweight, zero-dependency client is included in [`starkdb_client.py`](starkdb_client.py):
 
@@ -153,7 +153,7 @@ for hit in hits:
 
 ---
 
-## 🌐 HTTP REST API
+## HTTP REST API
 
 StarkDB provides an HTTP interface at `http://127.0.0.1:7474`:
 
@@ -169,7 +169,7 @@ curl http://127.0.0.1:7474/api/stats
 
 ---
 
-## ⚡ Quickstart & Installation
+## Quickstart & Installation
 
 ### Prerequisites
 * Rust 1.75+ (`cargo`, `rustc`)
@@ -204,14 +204,14 @@ cargo test
 
 ---
 
-## 🔒 Security & Privacy
+## Security & Privacy
 
 * **Strict Localhost Binding:** StarkDB binds exclusively to `127.0.0.1` by default. No external traffic can connect unless explicitly configured.
 * **No Telemetry / No Call-Home:** StarkDB never connects to external servers or collects telemetry. Your knowledge graph and vector embeddings remain 100% on your local storage.
 
 ---
 
-## 📄 License
+## License
 
 This project is dual-licensed under either:
 * **MIT License** ([LICENSE](LICENSE))
