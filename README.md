@@ -176,7 +176,7 @@ curl http://127.0.0.1:7474/api/stats
 
 ### 1. Build from Source
 ```bash
-git clone https://github.com/your-username/starkdb.git
+git clone https://github.com/DanyaStark553/starkdb.git
 cd starkdb
 cargo build --release
 ```
