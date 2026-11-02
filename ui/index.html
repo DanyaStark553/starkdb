@@ -1,0 +1,4862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StarkDB Workbench — Ultimate Legacy (v1.0.0)</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=3" />
+  <link rel="shortcut icon" type="image/png" href="/icon.png?v=3" />
+  <style>
+    :root {
+      --bg-app: #000000;
+      --bg-menubar: #000000;
+      --bg-tabbar: #050507;
+      --bg-rail: #000000;
+      --bg-surface: #070709;
+      --bg-card: #0b0b0e;
+      --bg-card-hover: #121217;
+      --bg-header: #0c0c10;
+      --bg-input: #050507;
+      --border: #1c1c22;
+      --border-light: #2c2c35;
+      --text-main: #f2f4f8;
+      --text-secondary: #9ca3af;
+      --text-muted: #525866;
+      --accent: #ef4444;
+      --accent-hover: #dc2626;
+      --accent-soft: rgba(239, 68, 68, 0.14);
+      --green: #22c55e;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --row-even: #050507;
+      --row-odd: #09090c;
+      --row-hover: #14141a;
+      --row-selected: #241014;
+      --font-ui: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", "Cascadia Code", "Consolas", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg-app);
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      font-size: 12.5px;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    svg.icon {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      stroke-width: 1.75;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      flex-shrink: 0;
+    }
+
+    svg.icon-lg {
+      width: 18px;
+      height: 18px;
+    }
+
+    svg.icon-sm {
+      width: 13px;
+      height: 13px;
+    }
+
+    /* 1. TOP MENU BAR */
+    .menubar {
+      height: 28px;
+      background: var(--bg-menubar);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .menubar-left {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .app-brand {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 600;
+      color: #fff;
+      padding-right: 10px;
+      margin-right: 4px;
+      border-right: 1px solid var(--border);
+      letter-spacing: -0.2px;
+    }
+
+    .app-brand img {
+      width: 16px;
+      height: 16px;
+      object-fit: contain;
+    }
+
+    .menu-item {
+      position: relative;
+      padding: 3px 8px;
+      border-radius: 3px;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .menu-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+    }
+
+    .menu-dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      min-width: 230px;
+      background: #0d0d11;
+      border: 1px solid var(--border-light);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85);
+      border-radius: 4px;
+      padding: 4px 0;
+      z-index: 1000;
+    }
+
+    .menu-item:hover .menu-dropdown {
+      display: block;
+    }
+
+    .menu-option {
+      padding: 6px 12px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+
+    .menu-option:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .menu-sep {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+
+    .menubar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+    }
+
+    .daemon-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 9px;
+      border-radius: 4px;
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.28);
+      color: #86efac;
+      cursor: pointer;
+      font-family: var(--font-mono);
+    }
+
+    .hw-engine-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 9px;
+      border-radius: 4px;
+      background: rgba(59, 130, 246, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.28);
+      color: #93c5fd;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .hw-engine-pill:hover {
+      background: rgba(59, 130, 246, 0.18);
+      border-color: rgba(59, 130, 246, 0.5);
+    }
+
+    .hw-dot {
+      color: #60a5fa;
+      font-size: 11px;
+    }
+
+    .daemon-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    /* 2. WORKBENCH TOP TAB BAR */
+    .workbench-tabbar {
+      height: 32px;
+      background: var(--bg-tabbar);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-end;
+      padding-left: 48px;
+      gap: 2px;
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .wb-tab {
+      height: 28px;
+      padding: 0 12px;
+      background: #08080b;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 4px 4px 0 0;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .wb-tab:hover {
+      background: var(--bg-card);
+      color: var(--text-main);
+    }
+
+    .wb-tab.active {
+      background: var(--bg-app);
+      color: #fff;
+      border-top: 2px solid var(--accent);
+      height: 29px;
+      font-weight: 600;
+    }
+
+    .wb-tab-close {
+      width: 15px;
+      height: 15px;
+      border-radius: 3px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-left: 2px;
+    }
+
+    .wb-tab-close:hover {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--red);
+    }
+
+    /* 3. MAIN BODY */
+    .workbench-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .icon-rail {
+      width: 48px;
+      background: var(--bg-rail);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 0;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .rail-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+
+    .rail-btn:hover {
+      background: var(--bg-card);
+      color: #fff;
+    }
+
+    .rail-btn.active {
+      background: var(--accent-soft);
+      border-color: rgba(239, 68, 68, 0.45);
+      color: var(--accent);
+    }
+
+    .rail-spacer {
+      flex: 1;
+    }
+
+    .screen-container {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      background: var(--bg-app);
+    }
+
+    .screen {
+      display: none;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    /* ============================================================
+       SCREEN A: PURE BLACK HOME SCREEN (Seamless with StarkDB Logo)
+       ============================================================ */
+    .home-screen {
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 32px 42px;
+      gap: 28px;
+      background: #000000;
+    }
+
+    .home-hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 36px;
+      padding-bottom: 26px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .home-hero-left {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      max-width: 780px;
+    }
+
+    /* Large frameless logo blending seamlessly into pure #000000 background */
+    .home-logo {
+      width: 215px;
+      height: auto;
+      object-fit: contain;
+      border: none;
+      background: transparent;
+      flex-shrink: 0;
+    }
+
+    .home-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .version-tag {
+      font-size: 11px;
+      font-weight: 500;
+      font-family: var(--font-mono);
+      color: var(--accent);
+      background: var(--accent-soft);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      padding: 2px 7px;
+      border-radius: 3px;
+    }
+
+    .home-desc {
+      color: var(--text-secondary);
+      line-height: 1.55;
+      font-size: 12.5px;
+    }
+
+    .home-quicklinks {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 230px;
+    }
+
+    .quicklink-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+
+    .quicklink-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-light);
+    }
+
+    .quicklink-icon-box {
+      width: 30px;
+      height: 30px;
+      border-radius: 4px;
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+    }
+
+    .quicklink-title {
+      font-weight: 600;
+      color: var(--text-main);
+      font-size: 12px;
+    }
+
+    .quicklink-sub {
+      color: var(--text-muted);
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    /* Connections Section Header */
+    .connections-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .connections-title-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .connections-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      letter-spacing: -0.1px;
+    }
+
+    .icon-action-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+
+    .icon-action-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-light);
+      color: #fff;
+    }
+
+    .connections-search {
+      width: 220px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-main);
+      padding: 5px 10px;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .connections-search:focus {
+      border-color: var(--accent);
+    }
+
+    /* Database Connection Cards Grid */
+    .db-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 14px;
+    }
+
+    .db-card {
+      position: relative;
+      height: 128px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 13px 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      overflow: hidden;
+      transition: border-color 0.12s, background 0.12s;
+    }
+
+    .db-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-light);
+    }
+
+    .db-card.active-db {
+      border-left: 3px solid var(--accent);
+    }
+
+    .db-card-watermark {
+      position: absolute;
+      right: 6px;
+      bottom: 6px;
+      width: 58px;
+      height: 58px;
+      opacity: 0.12;
+      pointer-events: none;
+      object-fit: contain;
+    }
+
+    .db-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      z-index: 1;
+    }
+
+    .db-card-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .db-card-badge {
+      font-size: 10px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+
+    .db-card-badge.key-badge {
+      background: rgba(245, 158, 11, 0.12);
+      color: var(--amber);
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+
+    .db-card-more {
+      opacity: 0;
+      width: 24px;
+      height: 22px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.1s;
+    }
+
+    .db-card:hover .db-card-more {
+      opacity: 1;
+    }
+
+    .db-card-more:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--border-light);
+      color: #fff;
+    }
+
+    .db-card-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-family: var(--font-mono);
+      z-index: 1;
+    }
+
+    .db-card-footer {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      z-index: 1;
+      padding-top: 7px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .db-card-footer strong {
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .db-card-new {
+      height: 128px;
+      background: #060608;
+      border: 1px dashed var(--border-light);
+      border-radius: 5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+
+    .db-card-new:hover {
+      background: var(--bg-card);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* ============================================================
+       SCREEN B: DATABASE WORKSPACE (3-Pane View)
+       ============================================================ */
+    .workspace-screen {
+      flex-direction: row;
+    }
+
+    .schema-sidebar {
+      width: 225px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .sidebar-section-header {
+      height: 29px;
+      padding: 0 12px;
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .schema-tree {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 0;
+    }
+
+    .tree-db-root {
+      padding: 6px 12px;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12.5px;
+    }
+
+    .tree-group-label {
+      padding: 10px 12px 4px 12px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .tree-item {
+      padding: 6px 12px 6px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 12px;
+      border-left: 2px solid transparent;
+    }
+
+    .tree-item-left {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .tree-item:hover {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-main);
+    }
+
+    .tree-item.active {
+      background: var(--accent-soft);
+      color: #fff;
+      border-left-color: var(--accent);
+      font-weight: 500;
+    }
+
+    .tree-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+
+    /* Center Workspace */
+    .workspace-center {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg-app);
+    }
+
+    .query-panel {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .query-toolbar {
+      min-height: 34px;
+      height: auto;
+      padding: 4px 10px;
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .query-toolbar-left,
+    .query-toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      height: 25px;
+      padding: 0 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border-light);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 11.5px;
+      font-family: var(--font-ui);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.1s;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--text-muted);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      font-weight: 500;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: var(--red);
+    }
+
+    .btn-danger:hover {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .query-editor-row {
+      display: flex;
+      align-items: center;
+      padding: 6px 10px;
+      gap: 8px;
+      background: #030304;
+    }
+
+    .query-prompt-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 3px 7px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .query-input {
+      flex: 1;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 5px 9px;
+      outline: none;
+    }
+
+    .query-input:focus {
+      border-color: var(--accent);
+    }
+
+    .query-preset-select {
+      height: 25px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      font-size: 11.5px;
+      padding: 0 8px;
+      outline: none;
+    }
+
+    /* Subview Bar */
+    .result-header-bar {
+      height: 32px;
+      padding: 0 10px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .subview-tabs {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .subview-tab {
+      padding: 4px 10px;
+      border-radius: 3px;
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .subview-tab:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .subview-tab.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .table-filter-input {
+      width: 200px;
+      height: 23px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text-main);
+      padding: 0 8px;
+      font-size: 11.5px;
+      outline: none;
+    }
+
+    .table-filter-input:focus {
+      border-color: var(--accent);
+    }
+
+    .grid-viewport {
+      flex: 1;
+      overflow: auto;
+      position: relative;
+    }
+
+    table.data-grid {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      user-select: text;
+    }
+
+    table.data-grid thead th {
+      position: sticky;
+      top: 0;
+      background: #0d0d11;
+      color: var(--text-secondary);
+      font-weight: 600;
+      text-align: left;
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border-light);
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
+      z-index: 2;
+    }
+
+    table.data-grid tbody tr {
+      border-bottom: 1px solid #16161c;
+      cursor: pointer;
+    }
+
+    table.data-grid tbody tr:nth-child(even) {
+      background: var(--row-even);
+    }
+
+    table.data-grid tbody tr:nth-child(odd) {
+      background: var(--row-odd);
+    }
+
+    table.data-grid tbody tr:hover {
+      background: var(--row-hover);
+    }
+
+    table.data-grid tbody tr.selected {
+      background: var(--row-selected);
+    }
+
+    table.data-grid td {
+      padding: 5px 10px;
+      border-right: 1px solid #16161c;
+      white-space: nowrap;
+      max-width: 280px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mono-cell {
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+    }
+
+    .type-pill {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 10.5px;
+      font-family: var(--font-mono);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+    }
+
+    /* Graph Canvas */
+    .graph-viewport {
+      display: none;
+      flex: 1;
+      position: relative;
+      background: #000000;
+      background-image: radial-gradient(#1c1c24 1px, transparent 1px);
+      background-size: 20px 20px;
+      overflow: hidden;
+    }
+
+    .graph-viewport.active {
+      display: block;
+    }
+
+    .graph-overlay-controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(11, 11, 14, 0.94);
+      border: 1px solid var(--border-light);
+      padding: 5px 9px;
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      z-index: 10;
+      user-select: none;
+    }
+
+    .graph-overlay-controls .ctrl-hint {
+      color: var(--text-muted);
+      font-size: 11px;
+      margin-right: 4px;
+    }
+
+    .graph-overlay-controls .ctrl-divider {
+      width: 1px;
+      height: 16px;
+      background: var(--border-light);
+      margin: 0 4px;
+    }
+
+    .btn-xs {
+      height: 22px;
+      padding: 0 8px;
+      font-size: 11px;
+      line-height: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .pill-group {
+      display: inline-flex;
+      background: #07070a;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      overflow: hidden;
+      padding: 1px;
+    }
+
+    .pill-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-family: var(--font-ui);
+      font-weight: 500;
+      padding: 2px 8px;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.15s ease;
+      line-height: 18px;
+    }
+
+    .pill-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .pill-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 1px 4px rgba(239, 68, 68, 0.4);
+    }
+
+    /* Right Pane: Record Inspector */
+    .inspector-pane {
+      width: 290px;
+      background: var(--bg-surface);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 5;
+      box-shadow: -4px 0 16px rgba(0, 0, 0, 0.35);
+    }
+
+    .inspector-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-label {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .form-control {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: #fff;
+      padding: 6px 8px;
+      font-size: 12px;
+      font-family: var(--font-ui);
+      outline: none;
+    }
+
+    .form-control.mono {
+      font-family: var(--font-mono);
+    }
+
+    .form-control:focus {
+      border-color: var(--accent);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 85px;
+      font-family: var(--font-mono);
+    }
+
+    /* ============================================================
+       SCREEN C: MIGRATION & DUMP CENTER
+       ============================================================ */
+    .migration-screen,
+    .server-screen {
+      flex-direction: column;
+      padding: 26px 34px;
+      gap: 20px;
+      overflow-y: auto;
+      background: #000000;
+    }
+
+    .mig-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      flex: 1;
+      min-height: 420px;
+    }
+
+    .admin-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .admin-card-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .kv-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 3px 0;
+    }
+
+    .kv-key {
+      color: var(--text-secondary);
+    }
+
+    .kv-val {
+      font-family: var(--font-mono);
+      color: #fff;
+    }
+
+    /* Bottom Status Bar (No duplicate socket!) */
+    .statusbar {
+      height: 23px;
+      background: var(--bg-menubar);
+      border-top: 1px solid var(--border);
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      width: 460px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 5px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9);
+      overflow: hidden;
+    }
+
+    .modal-box.wide {
+      width: 560px;
+    }
+
+    .modal-header {
+      padding: 11px 16px;
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 600;
+      color: #fff;
+      font-size: 13px;
+    }
+
+    .modal-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 78vh;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 10px 16px;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-box {
+      background: #060608;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .section-box-title {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .inline-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    /* v1.0 Ultimate Legacy — Bound Attack Channel Bars & Telemetry */
+    .bound-channel-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(95px, 1fr));
+      gap: 8px;
+      min-width: 420px;
+    }
+    .bound-ch-item {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 4px;
+      padding: 4px 6px;
+    }
+    .bound-ch-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      font-family: var(--font-mono);
+      margin-bottom: 3px;
+    }
+    .bound-ch-track {
+      height: 5px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .bound-ch-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.25s ease;
+    }
+    .telem-mini-box {
+      margin: 6px 8px;
+      padding: 8px 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 11px;
+    }
+    .telem-mini-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .telem-mini-row:last-child {
+      border-bottom: none;
+    }
+    .telem-mini-key {
+      color: var(--text-secondary);
+    }
+    .telem-mini-val {
+      font-family: var(--font-mono);
+      color: #fff;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. CLASSIC TOP MENU BAR -->
+  <div class="menubar">
+    <div class="menubar-left">
+      <div class="app-brand">
+        <img src="/icon.png?v=3" alt="StarkDB" />
+        <span>StarkDB Workbench</span>
+      </div>
+
+      <div class="menu-item">
+        File
+        <div class="menu-dropdown">
+          <div class="menu-option" onclick="openModal('modal-new-db')"><span>New Database...</span><span>Ctrl+N</span></div>
+          <div class="menu-option" onclick="switchTopTab('home')"><span>Home Connections</span><span>Alt+H</span></div>
+          <div class="menu-sep"></div>
+          <div class="menu-option" onclick="refreshAll()"><span>Refresh All</span><span>F5</span></div>
+        </div>
+      </div>
+
+      <div class="menu-item">
+        Database
+        <div class="menu-dropdown">
+          <div class="menu-option" onclick="openModal('modal-new-db')"><span>Create Database (.starkdb)...</span></div>
+          <div class="menu-option" onclick="openModal('modal-new-node')"><span>Insert Node Record...</span></div>
+          <div class="menu-option" onclick="openModal('modal-new-synapse')"><span>Create Synapse Link...</span></div>
+          <div class="menu-sep"></div>
+          <div class="menu-option" onclick="quickDumpDatabase(currentDbName, 'sql')"><span>Dump Database to SQL (.sql)...</span></div>
+          <div class="menu-option" onclick="quickDumpDatabase(currentDbName, 'mongo')"><span>Dump Database to MongoDB (.json)...</span></div>
+          <div class="menu-option" onclick="openMigrationTab()"><span>Migration & Restore Wizard...</span></div>
+        </div>
+      </div>
+
+      <div class="menu-item">
+        View
+        <div class="menu-dropdown">
+          <div class="menu-option" onclick="switchTopTab('home')"><span>Home Screen</span></div>
+          <div class="menu-option" onclick="openActiveDbTab()"><span>Data Grid View</span></div>
+          <div class="menu-option" onclick="openActiveDbGraph()"><span>Synapse Topology Diagram</span></div>
+        </div>
+      </div>
+
+      <div class="menu-item">
+        Server
+        <div class="menu-dropdown">
+          <div class="menu-option" onclick="openServerTab()"><span>Background Service Status</span></div>
+          <div class="menu-option" onclick="openMigrationTab()"><span>Data Import / Export / Dump</span></div>
+          <div class="menu-sep"></div>
+          <div class="menu-option" onclick="runScrubAndHeal()"><span>Deep Integrity Scrub & Self-Healing</span></div>
+          <div class="menu-option" onclick="openHwModal()"><span>Hardware Engine & Tunings</span></div>
+          <div class="menu-option" onclick="runConsolidate()"><span>Run Memory Consolidation</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="menubar-right">
+      <div class="hw-engine-pill" id="top-hw-pill" onclick="openHwModal()" title="Zero-Config Hardware Engine Profile">
+        <span class="hw-dot" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#60a5fa;"></span>
+        <span id="top-hw-label">Hardware: Detecting...</span>
+      </div>
+      <div class="daemon-pill" onclick="openServerTab()" title="Background Daemon Status">
+        <span class="daemon-dot"></span>
+        <span id="top-daemon-label">Background Service: ONLINE (127.0.0.1:9099)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. WORKBENCH TOP TAB BAR -->
+  <div class="workbench-tabbar" id="workbench-tabbar"></div>
+
+  <!-- 3. MAIN WORKBENCH BODY -->
+  <div class="workbench-body">
+    <!-- Left Icon Rail -->
+    <div class="icon-rail">
+      <button class="rail-btn active" id="rail-home" onclick="switchTopTab('home')" title="Home — Databases">
+        <svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1v-9.5z"/></svg>
+      </button>
+      <button class="rail-btn" id="rail-workspace" onclick="openActiveDbTab()" title="Database Table Workspace">
+        <svg class="icon icon-lg" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/></svg>
+      </button>
+      <button class="rail-btn" id="rail-graph" onclick="openActiveDbGraph()" title="Synapse Topology Diagram">
+        <svg class="icon icon-lg" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><line x1="8.7" y1="7.5" x2="15.3" y2="7.5"/><line x1="7.5" y1="8.6" x2="10.8" y2="15.4"/><line x1="16.5" y1="8.6" x2="13.2" y2="15.4"/></svg>
+      </button>
+      <button class="rail-btn" id="rail-migration" onclick="openMigrationTab()" title="Dump & Migration Wizard (SQL / MongoDB / ChromaDB)">
+        <svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+      </button>
+      <div class="rail-spacer"></div>
+      <button class="rail-btn" id="rail-server" onclick="openServerTab()" title="Background Service & Server Settings">
+        <svg class="icon icon-lg" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="7" rx="1"/><rect x="2" y="14" width="20" height="7" rx="1"/><line x1="6" y1="6.5" x2="6.01" y2="6.5"/><line x1="6" y1="17.5" x2="6.01" y2="17.5"/></svg>
+      </button>
+    </div>
+
+    <!-- Screen Container -->
+    <div class="screen-container">
+
+      <!-- ========================================================
+           SCREEN A: HOME SCREEN (Pure Black Seamless Logo)
+           ======================================================== -->
+      <div class="screen home-screen active" id="screen-home">
+        <div class="home-hero">
+          <div class="home-hero-left">
+            <img src="/logo.png?v=3" alt="StarkDB Logo" class="home-logo" />
+            <div>
+              <div class="home-title">
+                StarkDB Workbench
+                <span class="version-tag">👑 Ultimate Legacy v1.0.0</span>
+              </div>
+              <p class="home-desc">
+                Interactive control workbench for <strong>StarkDB: Ultimate Legacy (v1.0.0)</strong>.
+                Binary <code>v5 mmap</code> engine with zero-copy serialization (48B node / 32B synapse),
+                tri-channel hybrid <strong>Bound Attack</strong> retrieval (HNSW SQ8 AVX2 + BM25F + Spreading Activation),
+                A/B/C manifest system, and non-blocking Shadow Vacuum.
+              </p>
+            </div>
+          </div>
+
+          <div class="home-quicklinks">
+            <div class="quicklink-card" onclick="openMigrationTab()">
+              <div class="quicklink-icon-box">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </div>
+              <div>
+                <div class="quicklink-title">SQL Dump & Migration</div>
+                <div class="quicklink-sub">SQL / MongoDB / ChromaDB</div>
+              </div>
+            </div>
+            <div class="quicklink-card" onclick="openServerTab()">
+              <div class="quicklink-icon-box">
+                <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="7" rx="1"/><rect x="2" y="14" width="20" height="7" rx="1"/></svg>
+              </div>
+              <div>
+                <div class="quicklink-title">Background Daemon</div>
+                <div class="quicklink-sub" id="hero-daemon-sub">Active in background</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connections Bar -->
+        <div class="connections-header">
+          <div class="connections-title-group">
+            <span class="connections-title">StarkDB Databases</span>
+            <button class="icon-action-btn" onclick="openModal('modal-new-db')" title="Create New Database">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <button class="icon-action-btn" onclick="openMigrationTab()" title="SQL Dump & Migration Wizard">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+            <button class="icon-action-btn" onclick="refreshDatabases()" title="Refresh Databases">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            </button>
+          </div>
+          <input
+            type="text"
+            class="connections-search"
+            id="home-db-filter"
+            placeholder="Filter databases..."
+            oninput="renderHomeDatabaseCards()"
+          />
+        </div>
+
+        <!-- Database Cards Grid -->
+        <div class="db-cards-grid" id="db-cards-grid"></div>
+      </div>
+
+      <!-- ========================================================
+           SCREEN B: DATABASE WORKSPACE TAB
+           ======================================================== -->
+      <div class="screen workspace-screen" id="screen-workspace">
+        <!-- Left Schema Navigator -->
+        <div class="schema-sidebar">
+          <div class="sidebar-section-header">
+            <span>Navigator / Schema</span>
+            <svg class="icon icon-sm" style="cursor:pointer;color:var(--text-secondary)" onclick="refreshWorkspaceData()" title="Refresh" viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          </div>
+          <div class="schema-tree">
+            <div class="tree-db-root">
+              <span id="nav-db-name">brain</span>
+              <span class="tree-badge" id="nav-db-size">7.6 KB</span>
+            </div>
+
+            <div class="tree-group-label">Tables</div>
+            <div class="tree-item active" id="tree-nodes" onclick="setWorkspaceMode('nodes')">
+              <span class="tree-item-left">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                <span>nodes</span>
+              </span>
+              <span class="tree-badge" id="nav-nodes-count">0</span>
+            </div>
+            <div class="tree-item" id="tree-synapses" onclick="setWorkspaceMode('synapses')">
+              <span class="tree-item-left">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                <span>synapses</span>
+              </span>
+              <span class="tree-badge" id="nav-synapses-count">0</span>
+            </div>
+
+            <div class="tree-group-label">Views & Graph</div>
+            <div class="tree-item" id="tree-graph" onclick="setWorkspaceMode('graph')">
+              <span class="tree-item-left">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><line x1="8.7" y1="7.5" x2="15.3" y2="7.5"/><line x1="7.5" y1="8.6" x2="10.8" y2="15.4"/><line x1="16.5" y1="8.6" x2="13.2" y2="15.4"/></svg>
+                <span>Synapse Diagram</span>
+              </span>
+              <span class="tree-badge" id="nav-graph-dim-badge">2D/3D</span>
+            </div>
+            <div class="tree-item" id="tree-cosmos" onclick="setWorkspaceMode('graph'); setGraphDimension('3d');">
+              <span class="tree-item-left">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="3.5"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+                <span>3D Neuro-Cosmos</span>
+              </span>
+              <span class="tree-badge" style="color:#d8b4fe;border-color:rgba(168,85,247,0.4);">v1.0</span>
+            </div>
+            <div class="tree-item" id="tree-activate" onclick="promptSpreadingActivation()">
+              <span class="tree-item-left">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <span>Spreading Activation</span>
+              </span>
+              <span class="tree-badge">2-Hop</span>
+            </div>
+            <div class="tree-item" id="tree-bound" onclick="runQuickBoundSearch()">
+              <span class="tree-item-left">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <span>Bound Attack / BM25F</span>
+              </span>
+              <span class="tree-badge" style="color:#38bdf8;">Hybrid</span>
+            </div>
+
+            <div class="tree-group-label">v1.0 Ultimate Telemetry</div>
+            <div class="telem-mini-box">
+              <div class="telem-mini-row">
+                <span class="telem-mini-key">BM25F Index:</span>
+                <span class="telem-mini-val" id="ws-bm25-stat">0 terms / 0 post</span>
+              </div>
+              <div class="telem-mini-row">
+                <span class="telem-mini-key">SQ8 SIMD:</span>
+                <span class="telem-mini-val" id="ws-sq8-stat" style="color:#38bdf8;">STANDBY (f16)</span>
+              </div>
+              <div class="telem-mini-row">
+                <span class="telem-mini-key">A/B/C Manifest:</span>
+                <span class="telem-mini-val" id="ws-seg-stat">Seg #0 • Ep #0</span>
+              </div>
+              <div class="telem-mini-row">
+                <span class="telem-mini-key">Dead Arena / Vec:</span>
+                <span class="telem-mini-val" id="ws-dead-stat">0 B / 0 slots</span>
+              </div>
+              <div class="telem-mini-row">
+                <span class="telem-mini-key">HNSW Tombstones:</span>
+                <span class="telem-mini-val" id="ws-tomb-stat">0</span>
+              </div>
+              <div class="telem-mini-row">
+                <span class="telem-mini-key">Write Lock P50/P99:</span>
+                <span class="telem-mini-val" id="ws-lock-stat">0 / 0 µs</span>
+              </div>
+              <div style="display:flex;gap:6px;margin-top:7px;">
+                <button class="btn btn-xs" id="btn-ws-sq8" style="flex:1;justify-content:center;border-color:rgba(56,189,248,0.4);color:#7dd3fc;" onclick="toggleSq8Quantize()" title="Toggle SQ8 AVX2 Two-Phase Quantization">SQ8 SIMD</button>
+                <button class="btn btn-xs" style="flex:1;justify-content:center;border-color:rgba(168,85,247,0.4);color:#d8b4fe;" onclick="runShadowVacuum()" title="Trigger Non-Blocking Shadow Vacuum (VACUUM FORCE)">Vacuum</button>
+              </div>
+            </div>
+
+            <div class="tree-group-label">Management & Dump</div>
+            <div class="tree-item" onclick="quickDumpDatabase(currentDbName, 'sql')">
+              <span class="tree-item-left">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Dump DB (.sql)</span>
+              </span>
+            </div>
+            <div class="tree-item" onclick="openDbSettingsModal(currentDbName)">
+              <span class="tree-item-left">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4"/></svg>
+                <span>Connection & API Key</span>
+              </span>
+            </div>
+            <div class="tree-item" onclick="openMigrationTab()">
+              <span class="tree-item-left">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M16 3h5v5"/><path d="M4 20L21 3"/></svg>
+                <span>Migration Wizard</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Center Workspace -->
+        <div class="workspace-center">
+          <div class="query-panel">
+            <div class="query-toolbar">
+              <div class="query-toolbar-left">
+                <button class="btn btn-primary" onclick="executeStarkQL()">Execute</button>
+                <select class="query-preset-select" id="query-presets" onchange="applyQueryPreset(this.value)">
+                  <option value="">StarkQL Templates...</option>
+                  <option value="FIND NODES">FIND NODES</option>
+                  <option value="FIND SYNAPSES">FIND SYNAPSES</option>
+                  <option value='BOUND TEXT "StarkOS" TOP 10'>BOUND Attack (Hybrid Vec + BM25 + Graph)</option>
+                  <option value='SEARCH "StarkOS" TOP 10'>SEARCH (BM25F Full-Text)</option>
+                  <option value='ACTIVATE "StarkOS" DEPTH 2 DECAY 0.75'>ACTIVATE "StarkOS" DEPTH 2</option>
+                  <option value='REMEMBER "Jarvis" "USES" "StarkDB Ultimate Legacy" 0.98'>REMEMBER "Jarvis" "USES" "StarkDB Ultimate Legacy" 0.98</option>
+                  <option value="VACUUM FORCE">VACUUM (Non-Blocking Shadow Vacuum)</option>
+                  <option value="QUANTIZE sq8">QUANTIZE (Enable SQ8 SIMD)</option>
+                  <option value="DUMP SQL">DUMP SQL (Generate SQL Dump)</option>
+                  <option value="STATS">STATS</option>
+                  <option value="SCRUB">SCRUB (Deep Self-Healing Audit)</option>
+                  <option value="HARDWARE">HARDWARE (Inspect Hardware Engine)</option>
+                </select>
+              </div>
+              <div class="query-toolbar-right">
+                <button class="btn" id="btn-toolbar-sq8" onclick="toggleSq8Quantize()" title="Toggle SQ8 AVX2 Two-Phase Quantization" style="border-color:rgba(56,189,248,0.35);color:#7dd3fc;">SQ8 SIMD</button>
+                <button class="btn" onclick="runShadowVacuum()" title="Trigger Non-Blocking Shadow Vacuum (VACUUM FORCE)" style="border-color:rgba(168,85,247,0.35);color:#d8b4fe;">Shadow Vacuum</button>
+                <button class="btn" onclick="runScrubAndHeal()" title="Deep Integrity Audit & Self-Healing" style="border-color:rgba(59,130,246,0.35);color:#93c5fd;">Deep Scrub</button>
+                <button class="btn" onclick="openModal('modal-new-node')">+ Node</button>
+                <button class="btn" onclick="openModal('modal-new-synapse')">+ Synapse</button>
+                <button class="btn" onclick="quickDumpDatabase(currentDbName, 'sql')" title="Download SQL Dump (.sql)">Dump SQL</button>
+                <button class="btn" onclick="openDbSettingsModal(currentDbName)">Connection & Key</button>
+                <button class="btn" onclick="refreshWorkspaceData()">Refresh</button>
+              </div>
+            </div>
+
+            <div class="query-editor-row">
+              <span class="query-prompt-tag" id="query-db-indicator">brain &gt;</span>
+              <input
+                type="text"
+                class="query-input"
+                id="starkql-input"
+                value="FIND NODES"
+                placeholder='Enter StarkQL query (BOUND [...] TEXT "...", SEARCH "...", ACTIVATE "StarkOS" DEPTH 2, VACUUM FORCE, QUANTIZE sq8)...'
+                onkeydown="if(event.key==='Enter') executeStarkQL()"
+              />
+            </div>
+          </div>
+
+          <div class="result-header-bar">
+            <div class="subview-tabs">
+              <div class="subview-tab active" id="subtab-nodes" onclick="setWorkspaceMode('nodes')">Table: nodes</div>
+              <div class="subview-tab" id="subtab-synapses" onclick="setWorkspaceMode('synapses')">Table: synapses</div>
+              <div class="subview-tab" id="subtab-activated" onclick="setWorkspaceMode('activated')" style="display:none">Activation Result</div>
+              <div class="subview-tab" id="subtab-bound" onclick="setWorkspaceMode('bound')" style="display:none">Bound / BM25F Hits</div>
+              <div class="subview-tab" id="subtab-graph" onclick="setWorkspaceMode('graph')">Synapse Diagram</div>
+            </div>
+            <input
+              type="text"
+              class="table-filter-input"
+              id="table-search-input"
+              placeholder="Filter rows..."
+              oninput="renderActiveGrid()"
+            />
+          </div>
+
+          <!-- Table Data Grid -->
+          <div class="grid-viewport" id="grid-viewport">
+            <table class="data-grid">
+              <thead id="grid-thead"></thead>
+              <tbody id="grid-tbody"></tbody>
+            </table>
+          </div>
+
+          <!-- Graph EER Diagram Viewport -->
+          <div class="graph-viewport" id="graph-viewport">
+            <canvas id="graph-canvas"></canvas>
+            <div class="graph-overlay-controls">
+              <button class="btn btn-xs btn-danger" id="btn-exit-focus" onclick="deselectRecord()" style="display:none;font-weight:600;" title="Exit Node Focus (Esc)">✕ Exit Focus</button>
+              <div class="ctrl-divider" id="focus-divider" style="display:none;"></div>
+              <div class="pill-group">
+                <button class="pill-btn active" id="btn-dim-2d" onclick="setGraphDimension('2d')" title="Classic 2D graph topology">2D Graph</button>
+                <button class="pill-btn" id="btn-dim-3d" onclick="setGraphDimension('3d')" title="3D Neuro-Cosmos with perspective projection & orbit camera">3D Neuro-Cosmos</button>
+              </div>
+              <div class="ctrl-divider"></div>
+              <div class="pill-group">
+                <button class="pill-btn active" id="btn-style-orbs" onclick="setGraphStyle('orbs')" title="Orb Mode (standard dependency graph)">Orbs</button>
+                <button class="pill-btn" id="btn-style-cards" onclick="setGraphStyle('cards')" title="Card Mode">Cards</button>
+              </div>
+              <div class="ctrl-divider"></div>
+              <button class="btn btn-xs" onclick="applyGraphLayout('galaxy')" title="Galactic orbits: key hubs in the center, satellites in orbit">Galaxy</button>
+              <button class="btn btn-xs" onclick="applyGraphLayout('circle')" title="Mega circle scaled to node count">Mega Circle</button>
+              <button class="btn btn-xs" onclick="applyGraphLayout('repel')" title="Disperse: organic force-directed repulsion">Disperse</button>
+              <button class="btn btn-xs" id="btn-physics-toggle" onclick="togglePhysicsSimulation()" title="Smooth kinetic live physics simulation">Live Physics: OFF</button>
+              <button class="btn btn-xs" id="btn-neuro-wave" onclick="clearNeuroWave()" style="display:none;border-color:rgba(168,85,247,0.5);color:#d8b4fe;" title="Clear Neuro-Debugger excitation wave">Clear Wave</button>
+              <div class="ctrl-divider"></div>
+              <button class="btn btn-xs" onclick="zoomGraph(1.25)" title="Zoom In">+</button>
+              <span id="zoom-level-label" style="min-width:38px;text-align:center;font-family:var(--font-mono);font-size:11px">100%</span>
+              <button class="btn btn-xs" onclick="zoomGraph(0.8)" title="Zoom Out">-</button>
+              <button class="btn btn-xs btn-primary" onclick="fitGraphView()" title="Fit entire graph on screen">Fit Screen</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Pane: Record Inspector -->
+        <div class="inspector-pane" id="inspector-pane" style="display: none;">
+          <div class="sidebar-section-header">
+            <span id="inspector-title">Record Inspector</span>
+            <button class="btn btn-xs" onclick="deselectRecord()" title="Close Inspector (Esc)" style="height:20px;padding:0 6px;font-size:11px;background:rgba(255,255,255,0.06);border-color:var(--border);">✕</button>
+          </div>
+          <div class="inspector-body" id="inspector-body">
+            <div style="color:var(--text-muted);text-align:center;margin-top:40px;">
+              Select a row in the table or a node on the diagram to inspect and edit its fields.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================
+           SCREEN C: SQL DUMP & MIGRATION WIZARD
+           ======================================================== -->
+      <div class="screen migration-screen" id="screen-migration">
+        <div>
+          <h2 style="font-size:18px;color:#fff;margin-bottom:4px;">Database Dump & Migration Center</h2>
+          <p style="color:var(--text-secondary);">
+            Full database dumps (<code>.sql</code>, <code>.json</code>, <code>.starkql</code>) and bidirectional migration between
+            <strong>StarkDB: Ultimate Legacy (v1.0.0)</strong>, <strong>MongoDB</strong>, <strong>SQL (MySQL / PostgreSQL / SQLite)</strong>, and <strong>ChromaDB</strong>.
+          </p>
+        </div>
+
+        <div class="mig-grid">
+          <!-- Left: IMPORT / RESTORE INTO STARKDB -->
+          <div class="admin-card">
+            <div class="admin-card-title">
+              <span>Import / Restore into StarkDB</span>
+              <span class="db-card-badge">IMPORT</span>
+            </div>
+
+            <div class="inline-row">
+              <div class="form-group" style="flex:1">
+                <label class="form-label">Target StarkDB Database</label>
+                <select class="form-control mono" id="mig-import-db"></select>
+              </div>
+              <div class="form-group" style="flex:1">
+                <label class="form-label">Source Engine Format</label>
+                <select class="form-control" id="mig-import-format" onchange="loadSampleImportTemplate(false)">
+                  <option value="sql">SQL Dump (.sql INSERT statements)</option>
+                  <option value="mongo">MongoDB (.json / JSONL / entity_edges)</option>
+                  <option value="chromadb">ChromaDB (.json collection + embeddings)</option>
+                  <option value="starkql">StarkQL Dump (.starkql)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="inline-row" style="justify-content:space-between;">
+              <label class="form-label">Source Dump / Payload</label>
+              <div class="inline-row">
+                <input type="file" id="mig-file-input" style="display:none" onchange="handleMigrationFileUpload(event)" />
+                <button class="btn" onclick="document.getElementById('mig-file-input').click()">Load Dump File...</button>
+                <button class="btn" onclick="loadSampleImportTemplate(true)">Load Example</button>
+              </div>
+            </div>
+
+            <textarea
+              class="form-control mono"
+              id="mig-import-payload"
+              style="flex:1;min-height:210px;"
+              placeholder="Paste SQL INSERT dump, MongoDB JSON, ChromaDB JSON, or StarkQL commands here..."
+            ></textarea>
+
+            <div class="inline-row" style="justify-content:flex-end;">
+              <button class="btn btn-primary" onclick="runMigrationImport()">Import / Restore into StarkDB</button>
+            </div>
+          </div>
+
+          <!-- Right: DUMP / EXPORT FROM STARKDB -->
+          <div class="admin-card">
+            <div class="admin-card-title">
+              <span>Dump / Export from StarkDB</span>
+              <span class="db-card-badge">DUMP</span>
+            </div>
+
+            <div class="inline-row">
+              <div class="form-group" style="flex:1">
+                <label class="form-label">Source StarkDB Database</label>
+                <select class="form-control mono" id="mig-export-db"></select>
+              </div>
+              <div class="form-group" style="flex:1">
+                <label class="form-label">Dump / Target Format</label>
+                <select class="form-control" id="mig-export-format">
+                  <option value="sql">SQL Dump (PostgreSQL / MySQL / SQLite .sql)</option>
+                  <option value="mongo">MongoDB Dump (nodes & entity_edges .json)</option>
+                  <option value="chromadb">ChromaDB Dump (Collection .json)</option>
+                  <option value="starkql">StarkQL Native Dump (.starkql)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="inline-row" style="justify-content:space-between;">
+              <label class="form-label">Generated Dump Output</label>
+              <div class="inline-row">
+                <button class="btn btn-primary" onclick="runMigrationExport()">Generate Dump</button>
+                <button class="btn" onclick="copyExportOutput()">Copy</button>
+                <button class="btn" onclick="downloadExportOutput()">Download Dump File</button>
+              </div>
+            </div>
+
+            <textarea
+              class="form-control mono"
+              id="mig-export-output"
+              style="flex:1;min-height:210px;"
+              readonly
+              placeholder="Click 'Generate Dump' to create a full SQL, MongoDB, ChromaDB, or StarkQL dump of your database..."
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================
+           SCREEN D: SERVER & BACKGROUND SERVICE STATUS
+           ======================================================== -->
+      <div class="screen server-screen" id="screen-server">
+        <div>
+          <h2 style="font-size:18px;color:#fff;margin-bottom:4px;">Server Status & Ultimate Legacy v1.0 Telemetry</h2>
+          <p style="color:var(--text-secondary);">
+            Background service management and live telemetry for <strong>StarkDB: Ultimate Legacy (v1.0.0)</strong>. The daemon runs autonomously in the background — closing the Workbench window will not stop the database.
+          </p>
+        </div>
+
+        <div class="mig-grid" style="min-height:auto;">
+          <div class="admin-card">
+            <div class="admin-card-title">
+              <span>Background Daemon Service</span>
+              <span class="db-card-badge" style="color:var(--green);border-color:rgba(34,197,94,0.4);">ONLINE</span>
+            </div>
+            <div class="kv-row"><span class="kv-key">Process Mode:</span><span class="kv-val" id="srv-mode">Background Service (Detached)</span></div>
+            <div class="kv-row"><span class="kv-key">Process ID (PID):</span><span class="kv-val" id="srv-pid">—</span></div>
+            <div class="kv-row"><span class="kv-key">IPC TCP Socket:</span><span class="kv-val" id="srv-tcp">127.0.0.1:9099</span></div>
+            <div class="kv-row"><span class="kv-key">Workbench HTTP Port:</span><span class="kv-val" id="srv-http">127.0.0.1:7474</span></div>
+            <div class="kv-row"><span class="kv-key">OS Startup Auto-Run:</span><span class="kv-val" id="srv-autostart">—</span></div>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+              <button class="btn btn-primary" id="btn-autostart-toggle" onclick="toggleAutostart()">Enable Auto-Start on OS Boot</button>
+              <button class="btn" onclick="refreshDaemonInfo()">Refresh</button>
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <div class="admin-card-title">
+              <span>Storage Engine (v5 mmap + String Interning)</span>
+              <span class="db-card-badge">ZERO-WASTE</span>
+            </div>
+            <div class="kv-row"><span class="kv-key">Mounted Database:</span><span class="kv-val" id="srv-active-db">brain</span></div>
+            <div class="kv-row"><span class="kv-key">Disk Footprint:</span><span class="kv-val" id="srv-file-size">7.6 KB</span></div>
+            <div class="kv-row"><span class="kv-key">Active / Allocated Nodes:</span><span class="kv-val" id="srv-nodes">0 / 32</span></div>
+            <div class="kv-row"><span class="kv-key">Active / Allocated Synapses:</span><span class="kv-val" id="srv-synapses">0 / 64</span></div>
+            <div class="kv-row"><span class="kv-key">Arena String Pool Used:</span><span class="kv-val" id="srv-strings">0 B</span></div>
+            <div class="kv-row"><span class="kv-key">HNSW Vector Index:</span><span class="kv-val" id="srv-hnsw">0 vectors (Layers: 0)</span></div>
+            <div class="kv-row"><span class="kv-key">Lock-Free Telemetry Hits:</span><span class="kv-val" id="srv-telemetry">0</span></div>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+              <button class="btn" onclick="runConsolidate()">Run Memory Consolidation (CONSOLIDATE)</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-card" style="margin-top:12px;">
+          <div class="admin-card-title">
+            <span>👑 Ultimate Legacy v1.0 Telemetry (BM25F • SQ8 AVX2 • Shadow Vacuum &amp; A/B/C Manifest)</span>
+            <span class="db-card-badge" style="color:#d8b4fe;border-color:rgba(168,85,247,0.4);">v1.0.0 LIVE</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0 24px;">
+            <div class="kv-row"><span class="kv-key">BM25F Lexical Index:</span><span class="kv-val" id="srv-bm25">0 terms / 0 postings</span></div>
+            <div class="kv-row"><span class="kv-key">SQ8 SIMD Quantization:</span><span class="kv-val" id="srv-sq8" style="color:#38bdf8;">STANDBY (f16)</span></div>
+            <div class="kv-row"><span class="kv-key">Active Segment / Vacuum Epoch:</span><span class="kv-val" id="srv-segment">Segment #0 • Epoch #0</span></div>
+            <div class="kv-row"><span class="kv-key">Dead String Bytes / Vector Slots:</span><span class="kv-val" id="srv-dead-space">0 B / 0 slots</span></div>
+            <div class="kv-row"><span class="kv-key">HNSW Tombstones:</span><span class="kv-val" id="srv-tombstones">0</span></div>
+            <div class="kv-row"><span class="kv-key">Per-DB Write Lock (P50 / P99):</span><span class="kv-val" id="srv-lock-latency">0 µs / 0 µs</span></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px;">
+            <button class="btn" id="btn-srv-sq8" onclick="toggleSq8Quantize()" style="border-color:rgba(56,189,248,0.4);color:#7dd3fc;">Enable SQ8 SIMD (QUANTIZE sq8)</button>
+            <button class="btn" onclick="runShadowVacuum()" style="border-color:rgba(168,85,247,0.4);color:#d8b4fe;">Shadow Vacuum (VACUUM FORCE)</button>
+            <button class="btn" onclick="refreshDaemonInfo()">Refresh Live Telemetry</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 4. BOTTOM STATUS BAR (Single clean status + latency, no duplicate socket!) -->
+  <div class="statusbar">
+    <div id="status-message">Ready • StarkDB: Ultimate Legacy (v1.0.0)</div>
+    <div style="display:flex;gap:16px;font-family:var(--font-mono);">
+      <span id="status-sq8-pill" style="color:#38bdf8;">SQ8: STANDBY</span>
+      <span id="status-bm25-pill" style="color:#a855f7;">BM25F: 0 terms</span>
+      <span id="status-latency">Latency: 0.04 ms</span>
+      <span>Engine: v5 mmap (48B Node / 32B Synapse)</span>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODALS
+       ======================================================== -->
+  <div class="modal-backdrop" id="modal-new-db">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span>Create New Database</span>
+        <span style="cursor:pointer" onclick="closeModal('modal-new-db')">✕</span>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Database Name (e.g. brain, jarvis_memory, starkos_sys)</label>
+          <input type="text" class="form-control mono" id="new-db-name" placeholder="database_name" onkeydown="if(event.key==='Enter') submitCreateDatabase()" />
+        </div>
+        <p style="font-size:11.5px;color:var(--text-secondary);">
+          Creates a standalone <code>.starkdb</code> v5 memory-mapped file (7.6 KB initial size) with A/B/C manifest, BM25F, HNSW SQ8, and optional API key.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <span></span>
+        <div class="inline-row">
+          <button class="btn" onclick="closeModal('modal-new-db')">Cancel</button>
+          <button class="btn btn-primary" onclick="submitCreateDatabase()">Create Database</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Connection & API Key Settings Modal ("..." Button on DB Card) -->
+  <div class="modal-backdrop" id="modal-db-settings">
+    <div class="modal-box wide">
+      <div class="modal-header">
+        <span id="db-settings-title">Connection Settings — brain</span>
+        <span style="cursor:pointer" onclick="closeModal('modal-db-settings')">✕</span>
+      </div>
+      <div class="modal-body">
+        <div class="section-box">
+          <div class="section-box-title">
+            <span>1. Standard Direct Connection (Direct unauthenticated local connection)</span>
+            <span class="db-card-badge">DEFAULT</span>
+          </div>
+          <p style="font-size:11.5px;color:var(--text-secondary);">
+            Operates via local TCP IPC socket or HTTP without requiring an API key.
+          </p>
+          <div class="form-group">
+            <label class="form-label">Connection URI</label>
+            <div class="inline-row">
+              <input type="text" class="form-control mono" id="cfg-conn-uri" style="flex:1" readonly />
+              <button class="btn" onclick="copyInputVal('cfg-conn-uri')">Copy URI</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-box">
+          <div class="section-box-title">
+            <span>2. API Key Authentication (Optional isolated database routing)</span>
+            <span class="db-card-badge key-badge">OPTIONAL</span>
+          </div>
+          <p style="font-size:11.5px;color:var(--text-secondary);">
+            Optional authentication mode. Pass the <code>X-Stark-Key</code> header or <code>"api_key"</code> field to route requests directly to this database.
+          </p>
+          <div class="form-group">
+            <label class="form-label">Database API Key</label>
+            <div class="inline-row">
+              <input type="text" class="form-control mono" id="cfg-api-key" style="flex:1;color:#fbbf24;" readonly />
+              <button class="btn" onclick="copyInputVal('cfg-api-key')">Copy Key</button>
+              <button class="btn" onclick="regenerateCurrentDbApiKey()">Regenerate</button>
+            </div>
+          </div>
+          <label class="checkbox-row">
+            <input type="checkbox" id="cfg-api-enabled" onchange="saveCurrentDbConfig()" />
+            <span>Enforce API key authentication for this database</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="cfg-allow-remote" onchange="saveCurrentDbConfig()" />
+            <span>Allow remote connections from external networks (0.0.0.0:9099)</span>
+          </label>
+          <div class="form-group" style="margin-top:4px;">
+            <label class="form-label">Quick Connection Example (cURL / HTTP)</label>
+            <input type="text" class="form-control mono" id="cfg-curl-snippet" readonly />
+          </div>
+        </div>
+
+        <div class="section-box">
+          <div class="section-box-title">
+            <span>3. Database Dump & Removal</span>
+          </div>
+          <div class="inline-row" style="justify-content:space-between;">
+            <div class="inline-row">
+              <button class="btn" onclick="quickDumpDatabase(settingsModalDbName, 'sql')">Dump SQL (.sql)</button>
+              <button class="btn" onclick="quickDumpDatabase(settingsModalDbName, 'mongo')">Dump Mongo (.json)</button>
+            </div>
+            <div class="inline-row">
+              <button class="btn" onclick="truncateConfiguredDb()">Empty DB</button>
+              <button class="btn btn-danger" onclick="deleteConfiguredDb()">Delete Database</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('modal-db-settings'); openMigrationTab();">Open Migration Wizard...</button>
+        <button class="btn btn-primary" onclick="closeModal('modal-db-settings')">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Insert Node Modal -->
+  <div class="modal-backdrop" id="modal-new-node">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span>Insert Node Record</span>
+        <span style="cursor:pointer" onclick="closeModal('modal-new-node')">✕</span>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Node Name / Key</label>
+          <input type="text" class="form-control" id="new-node-name" placeholder="e.g. StarkOS_Kernel" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Node Type</label>
+          <input type="text" class="form-control mono" id="new-node-type" value="Entity" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tags (comma-separated)</label>
+          <input type="text" class="form-control mono" id="new-node-tags" placeholder="linux, core, system" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Base Weight (0.0 - 1.0)</label>
+          <input type="number" step="0.05" class="form-control mono" id="new-node-weight" value="1.0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Content / JSON Payload</label>
+          <textarea class="form-control" id="new-node-content" placeholder='{"description": "..."}'></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <span></span>
+        <div class="inline-row">
+          <button class="btn" onclick="closeModal('modal-new-node')">Cancel</button>
+          <button class="btn btn-primary" onclick="submitCreateNode()">Save Node</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Synapse Modal -->
+  <div class="modal-backdrop" id="modal-new-synapse">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span>Create Associative Synapse</span>
+        <span style="cursor:pointer" onclick="closeModal('modal-new-synapse')">✕</span>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Source Node Name</label>
+          <input type="text" class="form-control" id="new-syn-source" placeholder="e.g. Danya" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Relation Type</label>
+          <input type="text" class="form-control mono" id="new-syn-rel" placeholder="e.g. DEVELOPS" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Node Name</label>
+          <input type="text" class="form-control" id="new-syn-target" placeholder="e.g. StarkDB" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Synapse Weight (0.05 - 1.0)</label>
+          <input type="number" step="0.05" class="form-control mono" id="new-syn-weight" value="0.95" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <span></span>
+        <div class="inline-row">
+          <button class="btn" onclick="closeModal('modal-new-synapse')">Cancel</button>
+          <button class="btn btn-primary" onclick="submitCreateSynapse()">Link Synapse</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hardware Engine Modal (God Reboot) -->
+  <div class="modal-backdrop" id="modal-hardware">
+    <div class="modal-box wide">
+      <div class="modal-header">
+        <span style="display:flex;align-items:center;gap:8px;">
+          <span>Zero-Configuration Hardware Engine // 👑 Ultimate Legacy (v1.0.0)</span>
+        </span>
+        <span style="cursor:pointer" onclick="closeModal('modal-hardware')">✕</span>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">
+          StarkDB dynamically probes OS CPU topology, physical RAM capacity, available memory margins, and storage geometry to calibrate zero-copy parameters in real-time.
+        </p>
+        <div class="admin-card" style="margin-bottom:12px;">
+          <div class="admin-card-title">
+            <span id="hw-mode-badge" class="db-card-badge" style="background:rgba(59,130,246,0.2);color:#93c5fd;border-color:rgba(59,130,246,0.4);">—</span>
+            <span style="font-size:11px;color:var(--text-muted)">Auto-Tuned</span>
+          </div>
+          <div class="kv-row"><span class="kv-key">Logical CPU Cores:</span><span class="kv-val" id="hw-cores">—</span></div>
+          <div class="kv-row"><span class="kv-key">Total Physical RAM:</span><span class="kv-val" id="hw-ram-total">—</span></div>
+          <div class="kv-row"><span class="kv-key">Available Free RAM:</span><span class="kv-val" id="hw-ram-free">—</span></div>
+          <div class="kv-row"><span class="kv-key">Free Disk Storage:</span><span class="kv-val" id="hw-disk-free">—</span></div>
+          <div class="kv-row"><span class="kv-key">Storage Classification:</span><span class="kv-val" id="hw-storage-profile">—</span></div>
+          <div class="kv-row"><span class="kv-key">Dynamic mmap Page Size:</span><span class="kv-val" id="hw-page-size">—</span></div>
+          <div class="kv-row"><span class="kv-key">Recommended Batch Size:</span><span class="kv-val" id="hw-batch-size">—</span></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <span></span>
+        <div class="inline-row">
+          <button class="btn" onclick="closeModal('modal-hardware')">Close</button>
+          <button class="btn btn-primary" onclick="fetchHardwareProfile(true)">Recalibrate Hardware</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deep Scrub & Self-Healing Report Modal (God Reboot) -->
+  <div class="modal-backdrop" id="modal-scrub-report">
+    <div class="modal-box wide">
+      <div class="modal-header">
+        <span style="display:flex;align-items:center;gap:8px;">
+          <span>Deep Database Integrity Audit & Self-Healing Report</span>
+        </span>
+        <span style="cursor:pointer" onclick="closeModal('modal-scrub-report')">✕</span>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;margin-bottom:14px;">
+          <div>
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Audit Status</div>
+            <div id="scrub-status-text" style="font-size:16px;font-weight:700;color:var(--green);margin-top:2px;">—</div>
+          </div>
+          <div id="scrub-badge" class="db-card-badge" style="font-size:12px;padding:4px 10px;">—</div>
+        </div>
+
+        <div class="admin-grid" style="grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
+          <div class="admin-card" style="padding:10px;">
+            <div style="font-size:10.5px;color:var(--text-muted)">Dual Header A/B</div>
+            <div id="scrub-headers" style="font-size:13px;font-weight:600;margin-top:4px;color:#fff">—</div>
+          </div>
+          <div class="admin-card" style="padding:10px;">
+            <div style="font-size:10.5px;color:var(--text-muted)">Generation Sequence</div>
+            <div id="scrub-generation" style="font-size:13px;font-weight:600;margin-top:4px;color:var(--accent)">—</div>
+          </div>
+          <div class="admin-card" style="padding:10px;">
+            <div style="font-size:10.5px;color:var(--text-muted)">Audit Duration</div>
+            <div id="scrub-duration" style="font-size:13px;font-weight:600;margin-top:4px;color:#86efac">—</div>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-title">
+            <span>Integrity Validation Details</span>
+          </div>
+          <div class="kv-row"><span class="kv-key">Nodes Inspected:</span><span class="kv-val" id="scrub-nodes">—</span></div>
+          <div class="kv-row"><span class="kv-key">Synapses Inspected:</span><span class="kv-val" id="scrub-synapses">—</span></div>
+          <div class="kv-row"><span class="kv-key">Corrupted Records Neutralized:</span><span class="kv-val" id="scrub-healed">—</span></div>
+          <div class="kv-row"><span class="kv-key">Historical Quarantine Log:</span><span class="kv-val" id="scrub-quarantine">—</span></div>
+          <div class="kv-row"><span class="kv-key">Audit Log / Anomalies:</span><span class="kv-val mono" id="scrub-details">—</span></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <span></span>
+        <div class="inline-row">
+          <button class="btn btn-primary" onclick="closeModal('modal-scrub-report')">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let databases = [];
+    let openedDbTabs = [];
+    let activeTopTab = 'home';
+    let currentDbName = 'brain';
+    let settingsModalDbName = 'brain';
+    let workspaceMode = 'nodes';
+
+    let nodesData = [];
+    let synapsesData = [];
+    let activatedData = [];
+    let selectedRecord = null;
+    let daemonInfo = null;
+
+    let graphPositions = {};
+    let draggingNodeId = null;
+
+    async function apiCall(payload, targetDb = null) {
+      const bodyObj = typeof payload === 'string'
+        ? { query: payload, db: targetDb || currentDbName }
+        : { db: targetDb || currentDbName, ...payload };
+      const res = await fetch('/api/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bodyObj)
+      });
+      const data = await res.json();
+      if (data.elapsed_us !== undefined) {
+        document.getElementById('status-latency').textContent =
+          `Latency: ${(data.elapsed_us / 1000).toFixed(2)} ms (${data.elapsed_us} µs)`;
+      }
+      if (data.message) {
+        setStatus(data.message);
+      }
+      return data;
+    }
+
+    function setStatus(msg) {
+      document.getElementById('status-message').textContent = msg;
+    }
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    function renderTopTabs() {
+      const bar = document.getElementById('workbench-tabbar');
+      let html = `
+        <div class="wb-tab ${activeTopTab === 'home' ? 'active' : ''}" onclick="switchTopTab('home')">
+          <span>Home</span>
+        </div>
+      `;
+
+      for (const dbName of openedDbTabs) {
+        const tabId = 'db:' + dbName;
+        const isAct = activeTopTab === tabId;
+        html += `
+          <div class="wb-tab ${isAct ? 'active' : ''}" onclick="switchTopTab('${tabId}')">
+            <span>${escapeHtml(dbName)}</span>
+            <span class="wb-tab-close" onclick="closeDbTab(event, '${escapeAttr(dbName)}')" title="Close tab">×</span>
+          </div>
+        `;
+      }
+
+      if (activeTopTab === 'migration') {
+        html += `
+          <div class="wb-tab active" onclick="switchTopTab('migration')">
+            <span>Dump & Migration</span>
+            <span class="wb-tab-close" onclick="switchTopTab('home'); event.stopPropagation();">×</span>
+          </div>
+        `;
+      }
+
+      if (activeTopTab === 'server') {
+        html += `
+          <div class="wb-tab active" onclick="switchTopTab('server')">
+            <span>Server Status</span>
+            <span class="wb-tab-close" onclick="switchTopTab('home'); event.stopPropagation();">×</span>
+          </div>
+        `;
+      }
+
+      bar.innerHTML = html;
+
+      document.getElementById('rail-home').classList.toggle('active', activeTopTab === 'home');
+      document.getElementById('rail-workspace').classList.toggle('active', activeTopTab.startsWith('db:') && workspaceMode !== 'graph');
+      document.getElementById('rail-graph').classList.toggle('active', activeTopTab.startsWith('db:') && workspaceMode === 'graph');
+      document.getElementById('rail-migration').classList.toggle('active', activeTopTab === 'migration');
+      document.getElementById('rail-server').classList.toggle('active', activeTopTab === 'server');
+
+      document.getElementById('screen-home').classList.toggle('active', activeTopTab === 'home');
+      document.getElementById('screen-workspace').classList.toggle('active', activeTopTab.startsWith('db:'));
+      document.getElementById('screen-migration').classList.toggle('active', activeTopTab === 'migration');
+      document.getElementById('screen-server').classList.toggle('active', activeTopTab === 'server');
+    }
+
+    async function switchTopTab(tabId) {
+      activeTopTab = tabId;
+      if (tabId === 'home') {
+        renderTopTabs();
+        await refreshDatabases();
+      } else if (tabId === 'server') {
+        renderTopTabs();
+        await refreshDaemonInfo();
+      } else if (tabId === 'migration') {
+        renderTopTabs();
+        await refreshDatabases();
+        populateMigrationDbSelects();
+      } else if (tabId.startsWith('db:')) {
+        const dbName = tabId.slice(3);
+        currentDbName = dbName;
+        if (!openedDbTabs.includes(dbName)) {
+          openedDbTabs.push(dbName);
+        }
+        renderTopTabs();
+        await apiCall({ cmd: 'use_database', name: dbName });
+        await refreshWorkspaceData();
+      }
+    }
+
+    async function openDatabaseConnection(dbName, initialMode = null) {
+      if (!dbName) {
+        if (databases.length === 0) {
+          openModal('modal-new-db');
+          return;
+        }
+        dbName = databases[0].name;
+      }
+      if (initialMode) {
+        workspaceMode = initialMode;
+      }
+      if (!openedDbTabs.includes(dbName)) {
+        openedDbTabs.push(dbName);
+      }
+      await switchTopTab('db:' + dbName);
+      if (initialMode) {
+        setWorkspaceMode(initialMode);
+      }
+    }
+
+    function closeDbTab(e, dbName) {
+      e.stopPropagation();
+      openedDbTabs = openedDbTabs.filter(n => n !== dbName);
+      if (activeTopTab === 'db:' + dbName) {
+        if (openedDbTabs.length > 0) {
+          switchTopTab('db:' + openedDbTabs[openedDbTabs.length - 1]);
+        } else {
+          switchTopTab('home');
+        }
+      } else {
+        renderTopTabs();
+      }
+    }
+
+    async function openActiveDbTab() {
+      await refreshDatabases();
+      if (databases.length === 0) {
+        openModal('modal-new-db');
+        return;
+      }
+      const target = openedDbTabs.length > 0 ? openedDbTabs[openedDbTabs.length - 1] : databases[0].name;
+      await openDatabaseConnection(target, 'nodes');
+    }
+
+    async function openActiveDbGraph() {
+      await refreshDatabases();
+      if (databases.length === 0) {
+        openModal('modal-new-db');
+        return;
+      }
+      const target = openedDbTabs.length > 0 ? openedDbTabs[openedDbTabs.length - 1] : databases[0].name;
+      await openDatabaseConnection(target, 'graph');
+    }
+
+    function openMigrationTab() {
+      switchTopTab('migration');
+    }
+
+    function openServerTab() {
+      switchTopTab('server');
+    }
+
+    // ==============================================================
+    // HOME SCREEN: DATABASE CARDS & "..." CONNECTION SETTINGS
+    // ==============================================================
+    async function refreshDatabases() {
+      const res = await apiCall({ cmd: 'list_databases' });
+      if (res.databases) {
+        databases = res.databases;
+        const active = databases.find(d => d.active);
+        if (active) {
+          currentDbName = active.name;
+        } else if (databases.length > 0) {
+          currentDbName = databases[0].name;
+        } else {
+          currentDbName = '';
+        }
+        renderHomeDatabaseCards();
+      }
+    }
+
+    function renderHomeDatabaseCards() {
+      const grid = document.getElementById('db-cards-grid');
+      const filter = (document.getElementById('home-db-filter').value || '').toLowerCase().trim();
+      const filtered = databases.filter(d => !filter || d.name.toLowerCase().includes(filter));
+
+      let html = '';
+      for (const db of filtered) {
+        html += `
+          <div class="db-card ${db.active ? 'active-db' : ''}" onclick="openDatabaseConnection('${escapeAttr(db.name)}')">
+            <img src="/icon.png?v=3" class="db-card-watermark" alt="" />
+            <div class="db-card-top">
+              <div class="db-card-name">
+                <span>${escapeHtml(db.name)}</span>
+                ${db.active ? '<span class="db-card-badge">MOUNTED</span>' : ''}
+                ${db.api_key_enabled ? '<span class="db-card-badge key-badge">API KEY</span>' : ''}
+              </div>
+              <button class="db-card-more" onclick="openDbSettingsModal('${escapeAttr(db.name)}', event)" title="Connection Settings & Actions">
+                <svg class="icon" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+              </button>
+            </div>
+            <div class="db-card-meta">
+              <div>${escapeHtml(db.connection_uri || ('starkdb://127.0.0.1:9099/' + db.name))}</div>
+              <div>File: ${escapeHtml(db.filename)} • ${db.api_key_enabled ? 'Key Auth Enabled' : 'Standard Direct'}</div>
+            </div>
+            <div class="db-card-footer">
+              <span><strong>${formatBytes(db.size_bytes)}</strong></span>
+              <span><strong>${db.nodes}</strong> nodes</span>
+              <span><strong>${db.synapses}</strong> synapses</span>
+            </div>
+          </div>
+        `;
+      }
+
+      html += `
+        <div class="db-card-new" onclick="openModal('modal-new-db')">
+          <svg class="icon icon-lg" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <div style="font-weight:600;font-size:12.5px;">Create New Database</div>
+          <div style="font-size:11px;color:var(--text-muted);">Standalone .starkdb container</div>
+        </div>
+      `;
+
+      grid.innerHTML = html;
+    }
+
+    function openDbSettingsModal(dbName, event = null) {
+      if (event) event.stopPropagation();
+      const db = databases.find(d => d.name === dbName);
+      if (!db) return;
+
+      settingsModalDbName = db.name;
+      document.getElementById('db-settings-title').textContent = `Connection Settings — ${db.name}`;
+      document.getElementById('cfg-conn-uri').value = db.connection_uri || `starkdb://127.0.0.1:9099/${db.name}`;
+      document.getElementById('cfg-api-key').value = db.api_key || '';
+      document.getElementById('cfg-api-enabled').checked = !!db.api_key_enabled;
+      document.getElementById('cfg-allow-remote').checked = !!db.allow_remote;
+      document.getElementById('cfg-curl-snippet').value =
+        `curl -X POST http://127.0.0.1:7474/api/query -H "X-Stark-Key: ${db.api_key}" -d '{"query":"FIND NODES"}'`;
+
+      openModal('modal-db-settings');
+    }
+
+    async function saveCurrentDbConfig() {
+      const api_key_enabled = document.getElementById('cfg-api-enabled').checked;
+      const allow_remote = document.getElementById('cfg-allow-remote').checked;
+      const res = await apiCall({
+        cmd: 'update_db_config',
+        name: settingsModalDbName,
+        api_key_enabled,
+        allow_remote
+      });
+      if (res.databases) {
+        databases = res.databases;
+        renderHomeDatabaseCards();
+        const updated = databases.find(d => d.name === settingsModalDbName);
+        if (updated) {
+          document.getElementById('cfg-conn-uri').value = updated.connection_uri;
+        }
+      }
+    }
+
+    async function regenerateCurrentDbApiKey() {
+      const res = await apiCall({
+        cmd: 'regenerate_api_key',
+        name: settingsModalDbName
+      });
+      if (res.databases) {
+        databases = res.databases;
+        renderHomeDatabaseCards();
+        const updated = databases.find(d => d.name === settingsModalDbName);
+        if (updated) {
+          document.getElementById('cfg-api-key').value = updated.api_key;
+          document.getElementById('cfg-curl-snippet').value =
+            `curl -X POST http://127.0.0.1:7474/api/query -H "X-Stark-Key: ${updated.api_key}" -d '{"query":"FIND NODES"}'`;
+        }
+      }
+    }
+
+    async function quickDumpDatabase(dbName, format = 'sql') {
+      const target = dbName || currentDbName || (databases[0] && databases[0].name);
+      if (!target) {
+        alert('No database available to dump.');
+        return;
+      }
+      const res = await apiCall({ cmd: 'export_database', name: target, format });
+      if (res.status === 'ok' && res.exported_data !== undefined) {
+        const ext = format === 'sql' ? 'sql' : (format === 'starkql' ? 'starkql' : 'json');
+        const blob = new Blob([res.exported_data], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${target}_dump.${ext}`;
+        a.click();
+        URL.revokeObjectURL(url);
+        setStatus(`Database '${target}' dumped to ${target}_dump.${ext}`);
+      } else {
+        alert(res.message || 'Dump failed');
+      }
+    }
+
+    async function truncateConfiguredDb() {
+      if (!confirm(`Empty all nodes and synapses in database "${settingsModalDbName}"?`)) return;
+      const res = await apiCall({ cmd: 'truncate_database', name: settingsModalDbName });
+      if (res.databases) {
+        databases = res.databases;
+        renderHomeDatabaseCards();
+        if (activeTopTab === 'db:' + settingsModalDbName) {
+          await refreshWorkspaceData();
+        }
+      }
+      closeModal('modal-db-settings');
+    }
+
+    async function deleteConfiguredDb() {
+      if (!confirm(`Permanently delete database "${settingsModalDbName}" (${settingsModalDbName}.starkdb)?`)) return;
+      const target = settingsModalDbName;
+      const res = await apiCall({ cmd: 'drop_database', name: target });
+      openedDbTabs = openedDbTabs.filter(n => n !== target);
+      closeModal('modal-db-settings');
+      if (res.databases) {
+        databases = res.databases;
+        renderHomeDatabaseCards();
+      }
+      if (activeTopTab === 'db:' + target) {
+        switchTopTab('home');
+      } else {
+        renderTopTabs();
+      }
+    }
+
+    async function submitCreateDatabase() {
+      const input = document.getElementById('new-db-name');
+      const name = input.value.trim();
+      if (!name) return;
+      const res = await apiCall({ cmd: 'create_database', name });
+      closeModal('modal-new-db');
+      input.value = '';
+      if (res.status === 'ok') {
+        await refreshDatabases();
+        await openDatabaseConnection(name, 'nodes');
+      } else {
+        alert(res.message || 'Failed to create database');
+      }
+    }
+
+    function copyInputVal(id) {
+      const el = document.getElementById(id);
+      navigator.clipboard.writeText(el.value);
+      setStatus('Copied to clipboard: ' + el.value);
+    }
+
+    // ==============================================================
+    // WORKSPACE SCREEN: TABLES, STARKQL & GRAPH
+    // ==============================================================
+    let boundHitsData = [];
+    let latestStats = null;
+
+    function updateLiveTelemetryUI(s) {
+      if (!s) return;
+      latestStats = s;
+      const setEl = (id, text, color = null) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.textContent = text;
+          if (color) el.style.color = color;
+        }
+      };
+
+      const bm25Terms = s.bm25_terms || 0;
+      const bm25Post = s.bm25_postings || 0;
+      const sq8Ready = !!s.sq8_ready;
+      const sq8Text = sq8Ready ? 'ACTIVE (AVX2 Two-Phase)' : 'STANDBY (f16)';
+      const sq8Color = sq8Ready ? '#22c55e' : '#38bdf8';
+      const segSeq = s.segment_seq || 0;
+      const vacEpoch = s.vacuum_epoch || 0;
+      const deadStr = formatBytes(s.dead_string_bytes || 0);
+      const deadVec = s.dead_vector_slots || 0;
+      const tombs = s.hnsw_tombstones || 0;
+      const p50 = s.write_lock_p50_us || 0;
+      const p99 = s.write_lock_p99_us || 0;
+
+      // Workspace Sidebar Telemetry
+      setEl('ws-bm25-stat', `${bm25Terms} terms / ${bm25Post} post`);
+      setEl('ws-sq8-stat', sq8Text, sq8Color);
+      setEl('ws-seg-stat', `Seg #${segSeq} • Ep #${vacEpoch}`);
+      setEl('ws-dead-stat', `${deadStr} / ${deadVec} slots`);
+      setEl('ws-tomb-stat', `${tombs}`);
+      setEl('ws-lock-stat', `${p50} / ${p99} µs`);
+
+      // Server Screen Telemetry
+      setEl('srv-active-db', (s.active_db || currentDbName) + '.starkdb');
+      setEl('srv-file-size', formatBytes(s.file_size_bytes || 0));
+      setEl('srv-nodes', `${s.active_nodes || 0} / ${s.max_nodes || 0}`);
+      setEl('srv-synapses', `${s.active_synapses || 0} / ${s.max_synapses || 0}`);
+      setEl('srv-strings', formatBytes(s.string_bytes || 0));
+      setEl('srv-hnsw', `${s.hnsw_indexed_vectors || 0} vectors (Layers: ${s.hnsw_layers || 0})`);
+      setEl('srv-telemetry', (s.lock_free_hits_total || 0).toLocaleString());
+
+      setEl('srv-bm25', `${bm25Terms} terms / ${bm25Post} postings`);
+      setEl('srv-sq8', sq8Text, sq8Color);
+      setEl('srv-segment', `Segment #${segSeq} • Epoch #${vacEpoch}`);
+      setEl('srv-dead-space', `${deadStr} / ${deadVec} slots`);
+      setEl('srv-tombstones', `${tombs}`);
+      setEl('srv-lock-latency', `${p50} µs / ${p99} µs`);
+
+      // Bottom Statusbar Pills
+      setEl('status-sq8-pill', `SQ8: ${sq8Ready ? 'ACTIVE (AVX2)' : 'STANDBY (f16)'}`, sq8Color);
+      setEl('status-bm25-pill', `BM25F: ${bm25Terms} terms (${bm25Post} post)`);
+
+      // Toggle Button Labels
+      const btnWsSq8 = document.getElementById('btn-ws-sq8');
+      if (btnWsSq8) btnWsSq8.textContent = sq8Ready ? 'SQ8: ON' : 'SQ8: OFF';
+      const btnTbSq8 = document.getElementById('btn-toolbar-sq8');
+      if (btnTbSq8) btnTbSq8.textContent = sq8Ready ? 'SQ8: ACTIVE' : 'SQ8 SIMD';
+      const btnSrvSq8 = document.getElementById('btn-srv-sq8');
+      if (btnSrvSq8) {
+        btnSrvSq8.textContent = sq8Ready
+          ? 'Disable SQ8 SIMD (QUANTIZE off)'
+          : 'Enable SQ8 SIMD (QUANTIZE sq8)';
+      }
+    }
+
+    async function toggleSq8Quantize() {
+      const nextMode = (latestStats && latestStats.sq8_ready) ? 'off' : 'sq8';
+      const q = `QUANTIZE ${nextMode}`;
+      const inp = document.getElementById('starkql-input');
+      if (inp) inp.value = q;
+      const res = await apiCall(q, currentDbName);
+      if (res.stats) updateLiveTelemetryUI(res.stats);
+      await refreshWorkspaceData();
+    }
+
+    async function runShadowVacuum() {
+      setStatus(`Running Non-Blocking Shadow Vacuum on '${currentDbName}'...`);
+      const inp = document.getElementById('starkql-input');
+      if (inp) inp.value = 'VACUUM FORCE';
+      const res = await apiCall({ cmd: 'vacuum', force: true }, currentDbName);
+      if (res.stats) updateLiveTelemetryUI(res.stats);
+      await refreshWorkspaceData();
+      if (activeTopTab === 'server') await refreshDaemonInfo();
+    }
+
+    function runQuickBoundSearch() {
+      const seedName = nodesData[0]?.name || 'StarkOS';
+      document.getElementById('starkql-input').value = `BOUND TEXT "${seedName}" TOP 10`;
+      executeStarkQL();
+    }
+
+    async function refreshWorkspaceData() {
+      if (!currentDbName) return;
+      document.getElementById('nav-db-name').textContent = currentDbName;
+      document.getElementById('query-db-indicator').textContent = currentDbName + ' >';
+
+      const [statsRes, nodesRes, synRes] = await Promise.all([
+        apiCall({ cmd: 'stats' }, currentDbName),
+        apiCall({ cmd: 'find_nodes', limit: 1000 }, currentDbName),
+        apiCall({ cmd: 'find_synapses', limit: 1000 }, currentDbName)
+      ]);
+
+      if (statsRes.stats) {
+        document.getElementById('nav-db-size').textContent = formatBytes(statsRes.stats.file_size_bytes);
+        document.getElementById('nav-nodes-count').textContent = statsRes.stats.active_nodes;
+        document.getElementById('nav-synapses-count').textContent = statsRes.stats.active_synapses;
+        updateLiveTelemetryUI(statsRes.stats);
+      }
+
+      nodesData = nodesRes.nodes || [];
+      synapsesData = synRes.synapses || [];
+
+      renderActiveGrid();
+      if (workspaceMode === 'graph') {
+        setTimeout(drawGraph, 20);
+      }
+    }
+
+    function setWorkspaceMode(mode) {
+      workspaceMode = mode;
+      document.getElementById('tree-nodes').classList.toggle('active', mode === 'nodes');
+      document.getElementById('tree-synapses').classList.toggle('active', mode === 'synapses');
+      document.getElementById('tree-graph').classList.toggle('active', mode === 'graph' && graphDimension === '2d');
+      const treeCosmos = document.getElementById('tree-cosmos');
+      if (treeCosmos) treeCosmos.classList.toggle('active', mode === 'graph' && graphDimension === '3d');
+      const treeBound = document.getElementById('tree-bound');
+      if (treeBound) treeBound.classList.toggle('active', mode === 'bound');
+
+      document.getElementById('subtab-nodes').classList.toggle('active', mode === 'nodes');
+      document.getElementById('subtab-synapses').classList.toggle('active', mode === 'synapses');
+      document.getElementById('subtab-activated').classList.toggle('active', mode === 'activated');
+      const subBound = document.getElementById('subtab-bound');
+      if (subBound) subBound.classList.toggle('active', mode === 'bound');
+      document.getElementById('subtab-graph').classList.toggle('active', mode === 'graph');
+
+      const showGraph = mode === 'graph';
+      document.getElementById('grid-viewport').style.display = showGraph ? 'none' : 'block';
+      document.getElementById('graph-viewport').classList.toggle('active', showGraph);
+
+      renderTopTabs();
+      if (showGraph) {
+        setTimeout(drawGraph, 30);
+      } else {
+        renderActiveGrid();
+      }
+    }
+
+    function renderActiveGrid() {
+      const thead = document.getElementById('grid-thead');
+      const tbody = document.getElementById('grid-tbody');
+      const filter = (document.getElementById('table-search-input').value || '').toLowerCase().trim();
+
+      if (workspaceMode === 'nodes') {
+        thead.innerHTML = `
+          <tr>
+            <th style="width:52px">id</th>
+            <th>name</th>
+            <th style="width:105px">node_type</th>
+            <th>tags</th>
+            <th style="width:85px">weight</th>
+            <th style="width:85px">activations</th>
+            <th style="width:65px">pinned</th>
+            <th>content (JSON / Document)</th>
+          </tr>
+        `;
+        const rows = nodesData.filter(n => {
+          const tagsStr = Array.isArray(n.tags) ? n.tags.join(',') : String(n.tags || '');
+          return !filter ||
+            n.name.toLowerCase().includes(filter) ||
+            n.node_type.toLowerCase().includes(filter) ||
+            tagsStr.toLowerCase().includes(filter) ||
+            (n.content || '').toLowerCase().includes(filter);
+        });
+        tbody.innerHTML = rows.map(n => {
+          const isSel = selectedRecord && selectedRecord.kind === 'node' && selectedRecord.data.id === n.id;
+          const tagsStr = Array.isArray(n.tags) ? n.tags.join(', ') : (n.tags || '');
+          return `
+            <tr class="${isSel ? 'selected' : ''}" onclick="selectNodeRecord(${n.id})">
+              <td class="mono-cell">${n.id}</td>
+              <td style="font-weight:600;color:#fff">${escapeHtml(n.name)}</td>
+              <td><span class="type-pill">${escapeHtml(n.node_type)}</span></td>
+              <td class="mono-cell">${escapeHtml(tagsStr || '—')}</td>
+              <td class="mono-cell">${n.base_weight.toFixed(2)}</td>
+              <td class="mono-cell">${n.activation_count}</td>
+              <td class="mono-cell">${n.pinned ? 'Yes' : 'No'}</td>
+              <td class="mono-cell">${escapeHtml(n.content || '')}</td>
+            </tr>
+          `;
+        }).join('');
+      } else if (workspaceMode === 'synapses') {
+        thead.innerHTML = `
+          <tr>
+            <th style="width:52px">id</th>
+            <th>source_node</th>
+            <th>relation</th>
+            <th>target_node</th>
+            <th style="width:90px">weight</th>
+            <th style="width:90px">activations</th>
+          </tr>
+        `;
+        const rows = synapsesData.filter(s =>
+          !filter ||
+          s.source_name.toLowerCase().includes(filter) ||
+          s.relation.toLowerCase().includes(filter) ||
+          s.target_name.toLowerCase().includes(filter)
+        );
+        tbody.innerHTML = rows.map(s => {
+          const isSel = selectedRecord && selectedRecord.kind === 'synapse' && selectedRecord.data.id === s.id;
+          return `
+            <tr class="${isSel ? 'selected' : ''}" onclick="selectSynapseRecord(${s.id})">
+              <td class="mono-cell">${s.id}</td>
+              <td style="font-weight:600;color:#fff">${escapeHtml(s.source_name)} <span class="mono-cell">#${s.source_id}</span></td>
+              <td><span class="type-pill" style="color:var(--accent)">:${escapeHtml(s.relation)}</span></td>
+              <td style="font-weight:600;color:#fff">${escapeHtml(s.target_name)} <span class="mono-cell">#${s.target_id}</span></td>
+              <td class="mono-cell">${s.weight.toFixed(3)}</td>
+              <td class="mono-cell">${s.activation_count ?? 1}</td>
+            </tr>
+          `;
+        }).join('');
+      } else if (workspaceMode === 'activated') {
+        thead.innerHTML = `
+          <tr>
+            <th style="width:65px">energy</th>
+            <th style="width:60px">depth</th>
+            <th style="width:52px">id</th>
+            <th>concept_name</th>
+            <th style="width:105px">node_type</th>
+            <th>associative_path</th>
+          </tr>
+        `;
+        tbody.innerHTML = activatedData.map(a => `
+          <tr onclick="selectNodeRecord(${a.id})">
+            <td class="mono-cell" style="color:var(--green);font-weight:700">${a.energy.toFixed(3)}</td>
+            <td class="mono-cell">hop ${a.depth}</td>
+            <td class="mono-cell">${a.id}</td>
+            <td style="font-weight:600;color:#fff">${escapeHtml(a.name)}</td>
+            <td><span class="type-pill">${escapeHtml(a.node_type)}</span></td>
+            <td class="mono-cell">${escapeHtml((a.path || []).join(' '))}</td>
+          </tr>
+        `).join('');
+      } else if (workspaceMode === 'bound') {
+        thead.innerHTML = `
+          <tr>
+            <th style="width:85px">total_score</th>
+            <th style="width:65px">hop_depth</th>
+            <th style="width:52px">id</th>
+            <th style="width:200px">concept_name</th>
+            <th>4-channel score decomposition (s_v Vector • s_t BM25F • s_g Graph • s_r Recency)</th>
+          </tr>
+        `;
+        const rows = boundHitsData.filter(h =>
+          !filter || (h.name || '').toLowerCase().includes(filter)
+        );
+        tbody.innerHTML = rows.map(h => {
+          const isSel = selectedRecord && selectedRecord.kind === 'node' && selectedRecord.data.id === h.node_id;
+          const pct = v => Math.max(0, Math.min(100, Math.round((v || 0) * 100)));
+          return `
+            <tr class="${isSel ? 'selected' : ''}" onclick="selectNodeRecord(${h.node_id})">
+              <td class="mono-cell" style="color:#22c55e;font-weight:700;font-size:13px">${(h.score || 0).toFixed(4)}</td>
+              <td class="mono-cell"><span class="type-pill" style="color:#d8b4fe;border-color:rgba(168,85,247,0.35)">hop ${h.depth || 0}</span></td>
+              <td class="mono-cell">${h.node_id}</td>
+              <td style="font-weight:600;color:#fff">${escapeHtml(h.name)}</td>
+              <td>
+                <div class="bound-channel-grid">
+                  <div class="bound-ch-item">
+                    <div class="bound-ch-top"><span style="color:#38bdf8">s_v Vec</span><span>${(h.s_v || 0).toFixed(3)}</span></div>
+                    <div class="bound-ch-track"><div class="bound-ch-fill" style="width:${pct(h.s_v)}%;background:#38bdf8;"></div></div>
+                  </div>
+                  <div class="bound-ch-item">
+                    <div class="bound-ch-top"><span style="color:#f59e0b">s_t BM25F</span><span>${(h.s_t || 0).toFixed(3)}</span></div>
+                    <div class="bound-ch-track"><div class="bound-ch-fill" style="width:${pct(h.s_t)}%;background:#f59e0b;"></div></div>
+                  </div>
+                  <div class="bound-ch-item">
+                    <div class="bound-ch-top"><span style="color:#a855f7">s_g Graph</span><span>${(h.s_g || 0).toFixed(3)}</span></div>
+                    <div class="bound-ch-track"><div class="bound-ch-fill" style="width:${pct(h.s_g)}%;background:#a855f7;"></div></div>
+                  </div>
+                  <div class="bound-ch-item">
+                    <div class="bound-ch-top"><span style="color:#22c55e">s_r Recency</span><span>${(h.s_r || 0).toFixed(3)}</span></div>
+                    <div class="bound-ch-track"><div class="bound-ch-fill" style="width:${pct(h.s_r)}%;background:#22c55e;"></div></div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    function openInspector() {
+      const pane = document.getElementById('inspector-pane');
+      if (pane) pane.style.display = 'flex';
+    }
+
+    function closeInspector() {
+      const pane = document.getElementById('inspector-pane');
+      if (pane) pane.style.display = 'none';
+    }
+
+    function deselectRecord() {
+      selectedRecord = null;
+      closeInspector();
+      const exitBtn = document.getElementById('btn-exit-focus');
+      const focusDiv = document.getElementById('focus-divider');
+      if (exitBtn) exitBtn.style.display = 'none';
+      if (focusDiv) focusDiv.style.display = 'none';
+      if (workspaceMode !== 'graph') renderActiveGrid();
+      drawGraph();
+    }
+
+    function selectNodeRecord(id) {
+      const node = nodesData.find(n => n.id === id);
+      if (!node) return;
+      selectedRecord = { kind: 'node', data: node };
+      openInspector();
+      if (workspaceMode !== 'graph') renderActiveGrid();
+
+      const tagsStr = Array.isArray(node.tags) ? node.tags.join(', ') : (node.tags || '');
+      document.getElementById('inspector-title').textContent = `Node Record #${node.id}`;
+      document.getElementById('inspector-body').innerHTML = `
+        <div class="form-group">
+          <label class="form-label">ID (Primary Key)</label>
+          <input class="form-control mono" value="${node.id}" disabled />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input class="form-control" id="insp-node-name" value="${escapeAttr(node.name)}" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Node Type</label>
+          <input class="form-control mono" id="insp-node-type" value="${escapeAttr(node.node_type)}" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tags</label>
+          <input class="form-control mono" id="insp-node-tags" value="${escapeAttr(tagsStr)}" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Base Weight</label>
+          <input type="number" step="0.05" class="form-control mono" id="insp-node-weight" value="${node.base_weight}" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Pinned</label>
+          <select class="form-control" id="insp-node-pinned">
+            <option value="false" ${!node.pinned ? 'selected' : ''}>False</option>
+            <option value="true" ${node.pinned ? 'selected' : ''}>True</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Content (JSON / Document)</label>
+          <textarea class="form-control" id="insp-node-content">${escapeHtml(node.content)}</textarea>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:6px;">
+          <button class="btn btn-primary" style="flex:1" onclick="saveInspectedNode(${node.id})">Apply Changes</button>
+          <button class="btn btn-danger" onclick="deleteInspectedNode('${escapeAttr(node.name)}')">Delete</button>
+        </div>
+      `;
+      drawGraph();
+    }
+
+    function selectSynapseRecord(id) {
+      const syn = synapsesData.find(s => s.id === id);
+      if (!syn) return;
+      selectedRecord = { kind: 'synapse', data: syn };
+      openInspector();
+      renderActiveGrid();
+
+      document.getElementById('inspector-title').textContent = `Synapse Record #${syn.id}`;
+      document.getElementById('inspector-body').innerHTML = `
+        <div class="form-group">
+          <label class="form-label">Synapse ID</label>
+          <input class="form-control mono" value="${syn.id}" disabled />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Source Node</label>
+          <input class="form-control" value="${escapeAttr(syn.source_name)} (#${syn.source_id})" disabled />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Relation</label>
+          <input class="form-control mono" id="insp-syn-rel" value="${escapeAttr(syn.relation)}" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Node</label>
+          <input class="form-control" value="${escapeAttr(syn.target_name)} (#${syn.target_id})" disabled />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Synapse Weight (0.05 - 1.0)</label>
+          <input type="number" step="0.05" class="form-control mono" id="insp-syn-weight" value="${syn.weight}" />
+        </div>
+        <div style="display:flex;gap:8px;margin-top:6px;">
+          <button class="btn btn-primary" style="flex:1" onclick="saveInspectedSynapse(${syn.id})">Apply Changes</button>
+          <button class="btn btn-danger" onclick="deleteInspectedSynapse(${syn.id})">Delete</button>
+        </div>
+      `;
+    }
+
+    async function saveInspectedNode(id) {
+      await apiCall({
+        cmd: 'update_node',
+        id,
+        name: document.getElementById('insp-node-name').value.trim(),
+        node_type: document.getElementById('insp-node-type').value.trim(),
+        tags: document.getElementById('insp-node-tags').value.trim(),
+        base_weight: parseFloat(document.getElementById('insp-node-weight').value) || 1.0,
+        pinned: document.getElementById('insp-node-pinned').value === 'true',
+        content: document.getElementById('insp-node-content').value
+      }, currentDbName);
+      await refreshWorkspaceData();
+    }
+
+    async function deleteInspectedNode(name) {
+      if (!confirm(`Delete node "${name}" and its connected synapses?`)) return;
+      await apiCall({ cmd: 'delete_node', target: name }, currentDbName);
+      deselectRecord();
+      await refreshWorkspaceData();
+    }
+
+    async function saveInspectedSynapse(id) {
+      await apiCall({
+        cmd: 'update_synapse',
+        id,
+        relation: document.getElementById('insp-syn-rel').value.trim(),
+        weight: parseFloat(document.getElementById('insp-syn-weight').value) || 0.9
+      }, currentDbName);
+      await refreshWorkspaceData();
+    }
+
+    async function deleteInspectedSynapse(id) {
+      if (!confirm(`Delete synapse #${id}?`)) return;
+      await apiCall({ cmd: 'delete_synapse', id }, currentDbName);
+      deselectRecord();
+      await refreshWorkspaceData();
+    }
+
+    function applyQueryPreset(val) {
+      if (!val) return;
+      document.getElementById('starkql-input').value = val;
+      executeStarkQL();
+      document.getElementById('query-presets').value = '';
+    }
+
+    async function executeStarkQL() {
+      const q = document.getElementById('starkql-input').value.trim();
+      if (!q) return;
+      const res = await apiCall(q, currentDbName);
+      if (res.status === 'error') {
+        setStatus('Error: ' + (res.message || 'Unknown error'));
+        alert(res.message);
+        return;
+      }
+
+      if (res.exported_data !== undefined) {
+        const blob = new Blob([res.exported_data], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${currentDbName}_dump.sql`;
+        a.click();
+        URL.revokeObjectURL(url);
+        return;
+      }
+
+      if (res.stats) {
+        updateLiveTelemetryUI(res.stats);
+      }
+
+      if (res.bound_hits) {
+        boundHitsData = res.bound_hits;
+        triggerNeuroWaveFromBoundHits(res.bound_hits);
+        const subBound = document.getElementById('subtab-bound');
+        if (subBound) subBound.style.display = 'block';
+        setWorkspaceMode('bound');
+      } else if (res.activated) {
+        activatedData = res.activated;
+        triggerNeuroWaveFromActivated(res.activated);
+        document.getElementById('subtab-activated').style.display = 'block';
+        setWorkspaceMode('activated');
+      } else if (res.synapses) {
+        synapsesData = res.synapses;
+        setWorkspaceMode('synapses');
+      } else if (res.nodes) {
+        nodesData = res.nodes;
+        setWorkspaceMode('nodes');
+      } else {
+        await refreshWorkspaceData();
+      }
+    }
+
+    function promptSpreadingActivation() {
+      const seed = prompt('Enter concept name to activate (2-Hop Spreading Activation):', nodesData[0]?.name || 'StarkOS');
+      if (!seed) return;
+      document.getElementById('starkql-input').value = `ACTIVATE "${seed}" DEPTH 2 DECAY 0.75`;
+      executeStarkQL();
+    }
+
+    async function submitCreateNode() {
+      const name = document.getElementById('new-node-name').value.trim();
+      if (!name) return;
+      await apiCall({
+        cmd: 'upsert_node',
+        name,
+        node_type: document.getElementById('new-node-type').value.trim() || 'Entity',
+        tags: document.getElementById('new-node-tags').value.trim(),
+        base_weight: parseFloat(document.getElementById('new-node-weight').value) || 1.0,
+        content: document.getElementById('new-node-content').value
+      }, currentDbName);
+      closeModal('modal-new-node');
+      document.getElementById('new-node-name').value = '';
+      await refreshWorkspaceData();
+    }
+
+    async function submitCreateSynapse() {
+      const source = document.getElementById('new-syn-source').value.trim();
+      const relation = document.getElementById('new-syn-rel').value.trim();
+      const target = document.getElementById('new-syn-target').value.trim();
+      const weight = parseFloat(document.getElementById('new-syn-weight').value) || 0.9;
+      if (!source || !relation || !target) return;
+      await apiCall({ cmd: 'remember', source, relation, target, weight }, currentDbName);
+      closeModal('modal-new-synapse');
+      await refreshWorkspaceData();
+    }
+
+    async function runConsolidate() {
+      const res = await apiCall({ cmd: 'consolidate', half_life_days: 30.0, prune_below: 0.05 }, currentDbName);
+      alert(res.message || 'Memory consolidated.');
+      await refreshWorkspaceData();
+    }
+
+    // ==============================================================
+    // GOD REBOOT: HARDWARE ENGINE & SELF-HEALING SCRUB
+    // ==============================================================
+    let cachedHardwareProfile = null;
+
+    async function fetchHardwareProfile(forceRefresh = false) {
+      try {
+        const res = await apiCall({ cmd: 'hardware' });
+        if (res && res.hardware) {
+          cachedHardwareProfile = res.hardware;
+          updateHardwareUI(res.hardware);
+        }
+      } catch (e) {
+        console.warn('Failed to query hardware engine:', e);
+      }
+    }
+
+    function updateHardwareUI(hw) {
+      const topPill = document.getElementById('top-hw-pill');
+      const topLabel = document.getElementById('top-hw-label');
+      if (topLabel) {
+        topLabel.textContent = `${hw.cpu_cores} Cores | ${(hw.total_ram_mb / 1024).toFixed(0)} GB RAM | Ultimate Legacy v1.0`;
+      }
+      if (topPill) {
+        topPill.title = `Profile: ${hw.mode_name} (${hw.cpu_cores} Cores, ${(hw.available_ram_mb / 1024).toFixed(1)} GB Free RAM, ${hw.free_disk_gb.toFixed(1)} GB Disk)`;
+      }
+
+      const modeBadge = document.getElementById('hw-mode-badge');
+      if (modeBadge) modeBadge.textContent = hw.mode_name;
+      const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+      };
+      setVal('hw-cores', `${hw.cpu_cores} Threads`);
+      setVal('hw-ram-total', `${(hw.total_ram_mb / 1024).toFixed(1)} GB (${hw.total_ram_mb} MB)`);
+      setVal('hw-ram-free', `${(hw.available_ram_mb / 1024).toFixed(1)} GB (${hw.available_ram_mb} MB)`);
+      setVal('hw-disk-free', `${hw.free_disk_gb.toFixed(2)} GB`);
+      setVal('hw-storage-profile', hw.storage_profile);
+      setVal('hw-page-size', `${formatBytes(hw.recommended_mmap_page_size)} (${hw.recommended_mmap_page_size} B)`);
+      setVal('hw-batch-size', `${hw.recommended_batch_size} ops / batch`);
+    }
+
+    function openHwModal() {
+      fetchHardwareProfile(true);
+      openModal('modal-hardware');
+    }
+
+    async function runScrubAndHeal() {
+      setStatus(`Running Deep Scrub & Self-Healing on '${currentDbName}'...`);
+      try {
+        const res = await apiCall({ cmd: 'scrub' }, currentDbName);
+        if (res.status === 'error') {
+          alert(`Scrub Failed: ${res.message}`);
+          return;
+        }
+
+        const rep = res.integrity;
+        if (!rep) {
+          alert(res.message || 'Scrub completed.');
+          return;
+        }
+
+        const statusText = document.getElementById('scrub-status-text');
+        const badge = document.getElementById('scrub-badge');
+        const qCount = rep.quarantined_total_count || 0;
+
+        if (rep.healthy && rep.healed_count === 0) {
+          if (qCount > 0) {
+            statusText.textContent = `HEALTHY (WITH HISTORICAL QUARANTINE: ${qCount})`;
+            statusText.style.color = '#eab308';
+            badge.textContent = `QUARANTINE (${qCount})`;
+            badge.style.background = 'rgba(234, 179, 8, 0.15)';
+            badge.style.color = '#fef08a';
+          } else {
+            statusText.textContent = '100% HEALTHY • ZERO ANOMALIES';
+            statusText.style.color = 'var(--green)';
+            badge.textContent = 'PASSED';
+            badge.style.background = 'rgba(34, 197, 94, 0.15)';
+            badge.style.color = '#86efac';
+          }
+        } else if (rep.healed_count > 0) {
+          statusText.textContent = `SELF-HEALED • ${rep.healed_count} ANOMALIES REPAIRED (QUARANTINED: ${qCount})`;
+          statusText.style.color = '#60a5fa';
+          badge.textContent = 'HEALED';
+          badge.style.background = 'rgba(59, 130, 246, 0.15)';
+          badge.style.color = '#93c5fd';
+        } else {
+          statusText.textContent = 'WARNING • CORRUPTED RECORDS DETECTED';
+          statusText.style.color = 'var(--red)';
+          badge.textContent = 'ATTENTION';
+          badge.style.background = 'rgba(239, 68, 68, 0.15)';
+          badge.style.color = '#fca5a5';
+        }
+
+        const headersValid = (rep.header_a_valid ? 'Header A (Valid)' : 'Header A (Bad)') + ' | ' + (rep.header_b_valid ? 'Header B (Valid)' : 'Header B (Bad)');
+        document.getElementById('scrub-headers').textContent = headersValid;
+        document.getElementById('scrub-generation').textContent = `Gen #${rep.active_generation}`;
+        document.getElementById('scrub-duration').textContent = `${rep.duration_us} µs (${(rep.duration_us / 1000).toFixed(2)} ms)`;
+        document.getElementById('scrub-nodes').textContent = `${rep.valid_nodes} valid / ${rep.total_nodes} checked (${rep.corrupted_nodes} corrupted)`;
+        document.getElementById('scrub-synapses').textContent = `${rep.valid_synapses} valid / ${rep.total_synapses} checked (${rep.corrupted_synapses} corrupted)`;
+        document.getElementById('scrub-healed').textContent = `${rep.healed_count} record(s) neutralized into FLAG_DELETED`;
+        const qEl = document.getElementById('scrub-quarantine');
+        if (qEl) qEl.textContent = `${qCount} record(s) logged in quarantine.jsonl`;
+
+        const detailsEl = document.getElementById('scrub-details');
+        if (rep.details && rep.details.length > 0) {
+          detailsEl.innerHTML = rep.details.map(d => `<div style="margin-bottom:3px;color:#fca5a5">• ${escapeHtml(d)}</div>`).join('');
+        } else {
+          detailsEl.textContent = 'No structural or CRC anomalies detected. Dual A/B headers synchronized and memory structures verified.';
+        }
+
+        openModal('modal-scrub-report');
+        await refreshWorkspaceData();
+      } catch (err) {
+        alert('Scrub request failed: ' + err.message);
+      }
+    }
+
+    // ==============================================================
+    // MIGRATION & DUMP WIZARD
+    // ==============================================================
+    function populateMigrationDbSelects() {
+      const impSel = document.getElementById('mig-import-db');
+      const expSel = document.getElementById('mig-export-db');
+      const opts = databases.map(d =>
+        `<option value="${escapeAttr(d.name)}" ${d.name === currentDbName ? 'selected' : ''}>${escapeHtml(d.name)} (${d.nodes} nodes)</option>`
+      ).join('');
+      impSel.innerHTML = opts;
+      expSel.innerHTML = opts;
+    }
+
+    function loadSampleImportTemplate(force = false) {
+      const fmt = document.getElementById('mig-import-format').value;
+      const box = document.getElementById('mig-import-payload');
+      if (!force && box.value.trim() !== '') return;
+
+      if (fmt === 'mongo') {
+        box.value = JSON.stringify({
+          nodes: [
+            { name: "Jarvis_Core", node_type: "Service", tags: ["ai", "voice"], content: { status: "active" }, base_weight: 0.96 },
+            { name: "Audio_Pipeline", node_type: "Hardware", tags: ["pipewire", "alsa"], content: { sample_rate: 48000 }, base_weight: 0.88 }
+          ],
+          entity_edges: [
+            { source: "Jarvis_Core", relation: "STREAMS_TO", target: "Audio_Pipeline", weight: 0.94 }
+          ]
+        }, null, 2);
+      } else if (fmt === 'sql') {
+        box.value = [
+          "-- Standard SQL INSERT dump",
+          "INSERT INTO stark_nodes (id, name, node_type, tags, content, base_weight, pinned) VALUES (101, 'PostgreSQL_Cluster', 'Software', 'sql,relational', '{\"port\":5432}', 0.90, 0);",
+          "INSERT INTO stark_nodes (id, name, node_type, tags, content, base_weight, pinned) VALUES (102, 'StarkDB_Engine', 'Software', 'mmap,graph', '{\"port\":9099}', 0.99, 1);",
+          "INSERT INTO stark_synapses (id, source_id, source_name, relation, target_id, target_name, weight) VALUES (201, 101, 'PostgreSQL_Cluster', 'MIGRATED_TO', 102, 'StarkDB_Engine', 0.97);"
+        ].join('\n');
+      } else if (fmt === 'chromadb') {
+        box.value = JSON.stringify({
+          ids: ["doc_1", "doc_2"],
+          documents: [
+            "StarkOS uses Linux Trixie with custom kernel flags.",
+            "ChromaDB embeddings migrated into StarkDB mmap storage."
+          ],
+          metadatas: [
+            { name: "StarkOS_Trixie_Doc", node_type: "Document", tags: "linux,trixie" },
+            { name: "Vector_Store_Doc", node_type: "Document", tags: "vectors,mmap" }
+          ],
+          relations: [
+            { source: "StarkOS_Trixie_Doc", relation: "INDEXED_IN", target: "Vector_Store_Doc", weight: 0.92 }
+          ]
+        }, null, 2);
+      } else if (fmt === 'starkql') {
+        box.value = [
+          'UPSERT NODE "Wayland_Compositor" TYPE "Software" TAGS "gui,linux" WEIGHT 0.93',
+          'REMEMBER "StarkOS" "RENDERS_VIA" "Wayland_Compositor" 0.95'
+        ].join('\n');
+      }
+    }
+
+    function handleMigrationFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        document.getElementById('mig-import-payload').value = ev.target.result;
+      };
+      reader.readAsText(file);
+    }
+
+    async function runMigrationImport() {
+      const name = document.getElementById('mig-import-db').value;
+      const format = document.getElementById('mig-import-format').value;
+      const payload = document.getElementById('mig-import-payload').value;
+      if (!name) {
+        alert('Create or select a target database first.');
+        return;
+      }
+      if (!payload.trim()) {
+        alert('Provide data to import.');
+        return;
+      }
+      const res = await apiCall({
+        cmd: 'import_database',
+        name,
+        format,
+        payload
+      });
+      if (res.status === 'ok') {
+        await refreshDatabases();
+        populateMigrationDbSelects();
+        alert(res.message);
+      } else {
+        alert(res.message || 'Import failed');
+      }
+    }
+
+    async function runMigrationExport() {
+      const name = document.getElementById('mig-export-db').value;
+      const format = document.getElementById('mig-export-format').value;
+      if (!name) return;
+      const res = await apiCall({
+        cmd: 'export_database',
+        name,
+        format
+      });
+      if (res.status === 'ok' && res.exported_data !== undefined) {
+        document.getElementById('mig-export-output').value = res.exported_data;
+      } else {
+        alert(res.message || 'Export failed');
+      }
+    }
+
+    function copyExportOutput() {
+      const val = document.getElementById('mig-export-output').value;
+      if (!val) return;
+      navigator.clipboard.writeText(val);
+      setStatus('Dump copied to clipboard.');
+    }
+
+    function downloadExportOutput() {
+      const val = document.getElementById('mig-export-output').value;
+      if (!val) {
+        alert('Click "Generate Dump" first.');
+        return;
+      }
+      const db = document.getElementById('mig-export-db').value || 'starkdb';
+      const fmt = document.getElementById('mig-export-format').value;
+      const ext = fmt === 'sql' ? 'sql' : (fmt === 'starkql' ? 'starkql' : 'json');
+      const blob = new Blob([val], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${db}_dump.${ext}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ==============================================================
+    // SERVER & BACKGROUND DAEMON CONTROL
+    // ==============================================================
+    async function refreshDaemonInfo() {
+      try {
+        const r = await fetch('/api/daemon');
+        daemonInfo = await r.json();
+        document.getElementById('top-daemon-label').textContent =
+          `Background Service: ONLINE (PID ${daemonInfo.pid} • 127.0.0.1:${daemonInfo.tcp_port})`;
+        document.getElementById('hero-daemon-sub').textContent =
+          `PID ${daemonInfo.pid} • Port ${daemonInfo.tcp_port} • Autostart: ${daemonInfo.autostart_enabled ? 'ON' : 'OFF'}`;
+
+        document.getElementById('srv-mode').textContent = daemonInfo.daemon_mode;
+        document.getElementById('srv-pid').textContent = daemonInfo.pid;
+        document.getElementById('srv-tcp').textContent = '127.0.0.1:' + daemonInfo.tcp_port;
+        document.getElementById('srv-http').textContent = '127.0.0.1:' + daemonInfo.http_port;
+        document.getElementById('srv-autostart').textContent = daemonInfo.autostart_enabled ? 'ENABLED' : 'DISABLED';
+
+        const btn = document.getElementById('btn-autostart-toggle');
+        btn.textContent = daemonInfo.autostart_enabled
+          ? 'Disable Auto-Start on OS Boot'
+          : 'Enable Auto-Start on OS Boot';
+      } catch (e) {
+        document.getElementById('top-daemon-label').textContent = 'Background Service: OFFLINE';
+      }
+
+      if (currentDbName) {
+        const statsRes = await apiCall({ cmd: 'stats' }, currentDbName);
+        if (statsRes.stats) {
+          updateLiveTelemetryUI(statsRes.stats);
+        }
+      }
+    }
+
+    async function toggleAutostart() {
+      const nextState = !(daemonInfo && daemonInfo.autostart_enabled);
+      const r = await fetch('/api/daemon/autostart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enable: nextState })
+      });
+      daemonInfo = await r.json();
+      await refreshDaemonInfo();
+    }
+
+    // ==============================================================
+    // SYNAPSE TOPOLOGY DIAGRAM (2D GRAPH + 🌌 3D NEURO-COSMOS + NEURO-DEBUGGER)
+    // ==============================================================
+    let graphZoom = 1.0;
+    let graphPanX = 0;
+    let graphPanY = 0;
+    let isPanning = false;
+    let panStartX = 0;
+    let panStartY = 0;
+    let hoveredNodeId = null;
+    let physicsActive = false;
+    let physicsRaf = null;
+    let graphStyle = 'orbs'; // 'orbs' | 'cards'
+    let graphDimension = '2d'; // '2d' | '3d'
+    let camYaw = 0.52;
+    let camPitch = 0.34;
+    let isOrbiting3D = false;
+    let orbitStartX = 0;
+    let orbitStartY = 0;
+    let projectedScreenNodes = {}; // id -> { sx, sy, rScreen, depth, scale }
+    let graphVelocities = {}; // id -> { vx, vy, vz }
+
+    // Neuro-Debugger Excitation Wave State
+    let neuroWaveNodes = new Map(); // id -> { energy, depth }
+    let neuroWaveActive = false;
+    let neuroWaveStart = 0;
+    let cosmosAnimRaf = null;
+
+    function ensureCosmosAnimationLoop() {
+      if (cosmosAnimRaf) return;
+      function tick() {
+        if (workspaceMode === 'graph' && (graphDimension === '3d' || neuroWaveActive)) {
+          drawGraph();
+          cosmosAnimRaf = requestAnimationFrame(tick);
+        } else {
+          cosmosAnimRaf = null;
+        }
+      }
+      cosmosAnimRaf = requestAnimationFrame(tick);
+    }
+
+    function setGraphDimension(dim) {
+      graphDimension = dim === '3d' ? '3d' : '2d';
+      const b2d = document.getElementById('btn-dim-2d');
+      const b3d = document.getElementById('btn-dim-3d');
+      if (b2d && b3d) {
+        b2d.classList.toggle('active', graphDimension === '2d');
+        b3d.classList.toggle('active', graphDimension === '3d');
+      }
+      const treeGraph = document.getElementById('tree-graph');
+      const treeCosmos = document.getElementById('tree-cosmos');
+      if (treeGraph) treeGraph.classList.toggle('active', workspaceMode === 'graph' && graphDimension === '2d');
+      if (treeCosmos) treeCosmos.classList.toggle('active', workspaceMode === 'graph' && graphDimension === '3d');
+
+      if (Object.keys(graphPositions).length === 0 && nodesData.length > 0) {
+        applyGraphLayout('galaxy');
+      }
+      if (graphDimension === '3d') {
+        graphPanX = 0;
+        graphPanY = 0;
+        ensureCosmosAnimationLoop();
+      }
+      drawGraph();
+    }
+
+    function triggerNeuroWaveFromActivated(list) {
+      neuroWaveNodes.clear();
+      for (const item of (list || [])) {
+        neuroWaveNodes.set(item.id, { energy: item.energy || 0.8, depth: item.depth || 0 });
+      }
+      neuroWaveActive = neuroWaveNodes.size > 0;
+      neuroWaveStart = performance.now();
+      const btn = document.getElementById('btn-neuro-wave');
+      if (btn) btn.style.display = neuroWaveActive ? 'inline-flex' : 'none';
+      ensureCosmosAnimationLoop();
+    }
+
+    function triggerNeuroWaveFromBoundHits(list) {
+      neuroWaveNodes.clear();
+      for (const item of (list || [])) {
+        neuroWaveNodes.set(item.node_id, { energy: item.score || 0.8, depth: item.depth || 0 });
+      }
+      neuroWaveActive = neuroWaveNodes.size > 0;
+      neuroWaveStart = performance.now();
+      const btn = document.getElementById('btn-neuro-wave');
+      if (btn) btn.style.display = neuroWaveActive ? 'inline-flex' : 'none';
+      ensureCosmosAnimationLoop();
+    }
+
+    function clearNeuroWave() {
+      neuroWaveNodes.clear();
+      neuroWaveActive = false;
+      const btn = document.getElementById('btn-neuro-wave');
+      if (btn) btn.style.display = 'none';
+      drawGraph();
+    }
+
+    function setGraphStyle(style) {
+      graphStyle = style;
+      const bOrbs = document.getElementById('btn-style-orbs');
+      const bCards = document.getElementById('btn-style-cards');
+      if (bOrbs && bCards) {
+        if (style === 'orbs') {
+          bOrbs.classList.add('active');
+          bCards.classList.remove('active');
+        } else {
+          bOrbs.classList.remove('active');
+          bCards.classList.add('active');
+        }
+      }
+      drawGraph();
+    }
+
+    function resetGraphLayout() {
+      applyGraphLayout('galaxy');
+    }
+
+    function computeGraphDegrees() {
+      const deg = {};
+      const neighbors = {};
+      for (const n of nodesData) {
+        deg[n.id] = 0;
+        neighbors[n.id] = new Set();
+      }
+      for (const s of synapsesData) {
+        deg[s.source_id] = (deg[s.source_id] || 0) + 1;
+        deg[s.target_id] = (deg[s.target_id] || 0) + 1;
+        if (neighbors[s.source_id]) neighbors[s.source_id].add(s.target_id);
+        if (neighbors[s.target_id]) neighbors[s.target_id].add(s.source_id);
+      }
+      return { deg, neighbors };
+    }
+
+    function getNodeRadius(node, degVal = 0) {
+      const wFactor = node ? Math.max(0.75, Math.min(1.45, (node.base_weight || 1.0) * 1.15)) : 1.0;
+      const actBoost = node ? Math.min(6, Math.log2(1 + (node.activation_count || 0)) * 1.1) : 0;
+      return Math.max(7, Math.min(30, (7 + Math.sqrt(degVal) * 2.4 + actBoost) * wFactor));
+    }
+
+    function getNodeColor(node) {
+      const type = ((node && node.node_type) || 'ENTITY').toUpperCase();
+      if (type.includes('CONCEPT') || type.includes('IDEA')) return '#a855f7';
+      if (type.includes('SOFT') || type.includes('SYS') || type.includes('OS') || type.includes('APP')) return '#22c55e';
+      if (type.includes('MEM') || type.includes('EVENT') || type.includes('TIME')) return '#f59e0b';
+      if (type.includes('DOC') || type.includes('FILE') || type.includes('CODE')) return '#06b6d4';
+      if (type.includes('ACT') || type.includes('PROC') || type.includes('TASK')) return '#ec4899';
+      return '#38bdf8';
+    }
+
+    function project3D(p, W, H) {
+      const cosY = Math.cos(camYaw), sinY = Math.sin(camYaw);
+      const cosP = Math.cos(camPitch), sinP = Math.sin(camPitch);
+      const pz = p.z || 0;
+      const x1 = p.x * cosY - pz * sinY;
+      const z1 = p.x * sinY + pz * cosY;
+      const y2 = p.y * cosP - z1 * sinP;
+      const z2 = p.y * sinP + z1 * cosP;
+
+      const fov = 1150;
+      const camDist = 1350 / Math.max(graphZoom, 0.05);
+      const depth = Math.max(80, camDist + z2);
+      const scale = fov / depth;
+      return {
+        sx: W / 2 + graphPanX + x1 * scale,
+        sy: H / 2 + graphPanY + y2 * scale,
+        scale,
+        depth,
+        z2
+      };
+    }
+
+    function applyGraphLayout(mode = 'galaxy') {
+      const count = nodesData.length;
+      if (count === 0) return;
+      const { deg, neighbors } = computeGraphDegrees();
+
+      if (mode === 'circle') {
+        const stepW = (graphStyle === 'orbs') ? 55 : 165;
+        const circ = Math.max(count * stepW, 1100);
+        const radius = Math.min(circ / (2 * Math.PI), 650);
+        const sorted = [...nodesData].sort((a, b) => (deg[b.id] || 0) - (deg[a.id] || 0));
+
+        sorted.forEach((n, idx) => {
+          const angle = (2 * Math.PI * idx) / count - Math.PI / 2;
+          const zWave = Math.sin(angle * 3) * (radius * 0.35);
+          graphPositions[n.id] = {
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle),
+            z: zWave
+          };
+        });
+      } else if (mode === 'galaxy') {
+        const sorted = [...nodesData].sort((a, b) => (deg[b.id] || 0) - (deg[a.id] || 0));
+        const coreCount = Math.min(Math.max(Math.floor(count * 0.15), 3), 14);
+        const coreHubs = sorted.slice(0, coreCount);
+        const coreSet = new Set(coreHubs.map(h => h.id));
+
+        const r0 = Math.max(coreCount * 36, 135);
+        coreHubs.forEach((h, i) => {
+          const ang = (2 * Math.PI * i) / coreCount - Math.PI / 2;
+          const z0 = Math.cos(i * 1.7) * (r0 * 0.48);
+          graphPositions[h.id] = {
+            x: r0 * Math.cos(ang),
+            y: r0 * Math.sin(ang),
+            z: z0
+          };
+        });
+
+        const tier1 = [];
+        const tier2 = [];
+        const tier1Set = new Set();
+
+        for (const n of sorted) {
+          if (coreSet.has(n.id)) continue;
+          let connectedToCore = false;
+          let primaryCoreAng = 0;
+          let primaryCoreZ = 0;
+          for (const cid of coreSet) {
+            if (neighbors[n.id]?.has(cid)) {
+              connectedToCore = true;
+              const p = graphPositions[cid];
+              primaryCoreAng = Math.atan2(p.y, p.x);
+              primaryCoreZ = p.z || 0;
+              break;
+            }
+          }
+          if (connectedToCore) {
+            tier1.push({ node: n, ang: primaryCoreAng, cz: primaryCoreZ });
+            tier1Set.add(n.id);
+          } else {
+            tier2.push(n);
+          }
+        }
+
+        const t1Count = tier1.length;
+        const r1Base = r0 + (graphStyle === 'orbs' ? 210 : 340);
+        tier1.forEach((item, i) => {
+          const jitterAng = (2 * Math.PI * i) / Math.max(t1Count, 1) - Math.PI / 2;
+          const blendAng = item.ang * 0.65 + jitterAng * 0.35;
+          const r = r1Base + (i % 3) * (graphStyle === 'orbs' ? 75 : 120);
+          const z1 = item.cz * 0.6 + Math.sin(blendAng * 2 + i) * 145;
+          graphPositions[item.node.id] = {
+            x: r * Math.cos(blendAng),
+            y: r * Math.sin(blendAng),
+            z: z1
+          };
+        });
+
+        const t2Count = tier2.length;
+        const r2Base = r1Base + (graphStyle === 'orbs' ? 240 : 420);
+        const shells = Math.max(Math.ceil(t2Count / 65), 1);
+        tier2.forEach((n, i) => {
+          const shellIdx = i % shells;
+          const r = r2Base + shellIdx * (graphStyle === 'orbs' ? 120 : 200);
+          const ang = (2 * Math.PI * i) / Math.max(t2Count, 1) - Math.PI / 2;
+          const z2 = Math.cos(ang * 2.5 + shellIdx) * (r * 0.42);
+          graphPositions[n.id] = {
+            x: r * Math.cos(ang),
+            y: r * Math.sin(ang),
+            z: z2
+          };
+        });
+
+        for (let s = 0; s < 35; s++) {
+          stepPhysics(0.4);
+        }
+      } else if (mode === 'repel') {
+        const spreadFactor = (graphStyle === 'orbs') ? 95 : 165;
+        const spreadRadius = Math.max(Math.sqrt(count) * spreadFactor, 420);
+        const sorted = [...nodesData].sort((a, b) => (deg[b.id] || 0) - (deg[a.id] || 0));
+
+        sorted.forEach((n, idx) => {
+          // 3D Fibonacci sphere + phyllotaxis
+          const phi = Math.acos(1 - 2 * (idx + 0.5) / count);
+          const theta = idx * 2.39996323;
+          const r = spreadRadius * Math.cbrt((idx + 0.5) / count);
+          graphPositions[n.id] = {
+            x: r * Math.sin(phi) * Math.cos(theta),
+            y: r * Math.sin(phi) * Math.sin(theta),
+            z: r * Math.cos(phi)
+          };
+        });
+
+        for (let s = 0; s < 65; s++) {
+          stepPhysics(0.65);
+        }
+      }
+
+      fitGraphView();
+      drawGraph();
+    }
+
+    function stepPhysics(dt = 0.4) {
+      const count = nodesData.length;
+      if (count === 0) return;
+      const { deg } = computeGraphDegrees();
+
+      for (const n of nodesData) {
+        if (!graphVelocities[n.id]) {
+          graphVelocities[n.id] = { vx: 0, vy: 0, vz: 0 };
+        }
+        if (graphPositions[n.id] && graphPositions[n.id].z === undefined) {
+          graphPositions[n.id].z = (Math.sin(n.id * 17.3) * 140);
+        }
+      }
+
+      // 1. Spatial Hash Binning for Smooth O(N) Repulsion
+      const cellSize = (graphStyle === 'orbs') ? 130 : 210;
+      const grid = new Map();
+      for (const n of nodesData) {
+        const p = graphPositions[n.id];
+        if (!p) continue;
+        const cx = Math.floor(p.x / cellSize);
+        const cy = Math.floor(p.y / cellSize);
+        const key = `${cx},${cy}`;
+        let cell = grid.get(key);
+        if (!cell) {
+          cell = [];
+          grid.set(key, cell);
+        }
+        cell.push(n);
+      }
+
+      for (let i = 0; i < count; i++) {
+        const n1 = nodesData[i];
+        const p1 = graphPositions[n1.id];
+        if (!p1) continue;
+        const v1 = graphVelocities[n1.id];
+        const deg1 = deg[n1.id] || 0;
+        const m1 = 1.0 + Math.min(Math.sqrt(deg1) * 0.9, 6.0);
+        const r1 = getNodeRadius(n1, deg1);
+        const w1 = Math.max(120, (n1.name?.length || 8) * 8.5 + 24);
+
+        const cx = Math.floor(p1.x / cellSize);
+        const cy = Math.floor(p1.y / cellSize);
+
+        for (let ox = -1; ox <= 1; ox++) {
+          for (let oy = -1; oy <= 1; oy++) {
+            const cell = grid.get(`${cx + ox},${cy + oy}`);
+            if (!cell) continue;
+            for (const n2 of cell) {
+              if (n2.id <= n1.id) continue;
+              const p2 = graphPositions[n2.id];
+              if (!p2) continue;
+              const v2 = graphVelocities[n2.id];
+              const deg2 = deg[n2.id] || 0;
+              const m2 = 1.0 + Math.min(Math.sqrt(deg2) * 0.9, 6.0);
+              const r2 = getNodeRadius(n2, deg2);
+              const w2 = Math.max(120, (n2.name?.length || 8) * 8.5 + 24);
+
+              let dx = p2.x - p1.x;
+              let dy = p2.y - p1.y;
+              let dz = (p2.z || 0) - (p1.z || 0);
+              let dist = Math.sqrt(dx * dx + dy * dy + (graphDimension === '3d' ? dz * dz : 0));
+              if (dist < 0.1) {
+                dx = (Math.random() - 0.5) * 4;
+                dy = (Math.random() - 0.5) * 4;
+                dz = (Math.random() - 0.5) * 4;
+                dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+              }
+
+              const minDist = (graphStyle === 'orbs') ? (r1 + r2 + 18) : ((w1 + w2) / 2 + 25);
+              if (dist < minDist) {
+                const overlap = minDist - dist;
+                const f = overlap * 0.18;
+                const nx = dx / dist;
+                const ny = dy / dist;
+                const nz = dz / dist;
+                if (draggingNodeId !== n1.id) {
+                  v1.vx -= (nx * f) / m1;
+                  v1.vy -= (ny * f) / m1;
+                  v1.vz = (v1.vz || 0) - (nz * f * 0.5) / m1;
+                }
+                if (draggingNodeId !== n2.id) {
+                  v2.vx += (nx * f) / m2;
+                  v2.vy += (ny * f) / m2;
+                  v2.vz = (v2.vz || 0) + (nz * f * 0.5) / m2;
+                }
+              } else if (dist < cellSize) {
+                const f = (1600 / (dist * dist)) * 0.08;
+                const nx = dx / dist;
+                const ny = dy / dist;
+                const nz = dz / dist;
+                if (draggingNodeId !== n1.id) {
+                  v1.vx -= (nx * f) / m1;
+                  v1.vy -= (ny * f) / m1;
+                  v1.vz = (v1.vz || 0) - (nz * f * 0.35) / m1;
+                }
+                if (draggingNodeId !== n2.id) {
+                  v2.vx += (nx * f) / m2;
+                  v2.vy += (ny * f) / m2;
+                  v2.vz = (v2.vz || 0) + (nz * f * 0.35) / m2;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // 2. Synapse Spring Attraction
+      for (const s of synapsesData) {
+        const p1 = graphPositions[s.source_id];
+        const p2 = graphPositions[s.target_id];
+        if (!p1 || !p2) continue;
+        const v1 = graphVelocities[s.source_id];
+        const v2 = graphVelocities[s.target_id];
+        if (!v1 || !v2) continue;
+
+        const deg1 = deg[s.source_id] || 0;
+        const deg2 = deg[s.target_id] || 0;
+        const m1 = 1.0 + Math.min(Math.sqrt(deg1) * 0.9, 6.0);
+        const m2 = 1.0 + Math.min(Math.sqrt(deg2) * 0.9, 6.0);
+        const r1 = getNodeRadius(null, deg1);
+        const r2 = getNodeRadius(null, deg2);
+
+        let dx = p2.x - p1.x;
+        let dy = p2.y - p1.y;
+        let dz = (p2.z || 0) - (p1.z || 0);
+        let dist = Math.sqrt(dx * dx + dy * dy + (graphDimension === '3d' ? dz * dz : 0));
+        if (dist < 0.1) continue;
+
+        const targetDist = (graphStyle === 'orbs') ? (75 + (r1 + r2) * 1.2) : 210;
+        const disp = dist - targetDist;
+        const springForce = Math.min(Math.max(disp * 0.032, -6.0), 6.0);
+        const nx = dx / dist;
+        const ny = dy / dist;
+        const nz = dz / dist;
+
+        if (draggingNodeId !== s.source_id) {
+          v1.vx += (nx * springForce) / m1;
+          v1.vy += (ny * springForce) / m1;
+          v1.vz = (v1.vz || 0) + (nz * springForce * 0.45) / m1;
+        }
+        if (draggingNodeId !== s.target_id) {
+          v2.vx -= (nx * springForce) / m2;
+          v2.vy -= (ny * springForce) / m2;
+          v2.vz = (v2.vz || 0) - (nz * springForce * 0.45) / m2;
+        }
+      }
+
+      // 3. Center Tether & Velocity Integration
+      for (const n of nodesData) {
+        const p = graphPositions[n.id];
+        const v = graphVelocities[n.id];
+        if (!p || !v) continue;
+        if (draggingNodeId === n.id) {
+          v.vx = 0;
+          v.vy = 0;
+          v.vz = 0;
+          continue;
+        }
+
+        v.vx -= p.x * 0.00035;
+        v.vy -= p.y * 0.00035;
+        v.vz = ((v.vz || 0) - (p.z || 0) * 0.00045) * 0.85;
+
+        v.vx *= 0.85;
+        v.vy *= 0.85;
+
+        const spd = Math.sqrt(v.vx * v.vx + v.vy * v.vy + v.vz * v.vz);
+        const maxSpd = 2.6;
+        if (spd > maxSpd) {
+          v.vx = (v.vx / spd) * maxSpd;
+          v.vy = (v.vy / spd) * maxSpd;
+          v.vz = (v.vz / spd) * maxSpd;
+        }
+
+        p.x += v.vx * dt;
+        p.y += v.vy * dt;
+        p.z = (p.z || 0) + v.vz * dt;
+      }
+    }
+
+    function togglePhysicsSimulation() {
+      physicsActive = !physicsActive;
+      const btn = document.getElementById('btn-physics-toggle');
+      if (btn) {
+        btn.textContent = physicsActive ? 'Live Physics: ON' : 'Live Physics: OFF';
+        btn.style.color = physicsActive ? 'var(--green)' : 'inherit';
+      }
+
+      if (physicsActive) {
+        function loop() {
+          if (!physicsActive) return;
+          stepPhysics(0.38);
+          drawGraph();
+          physicsRaf = requestAnimationFrame(loop);
+        }
+        physicsRaf = requestAnimationFrame(loop);
+      } else if (physicsRaf) {
+        cancelAnimationFrame(physicsRaf);
+        physicsRaf = null;
+      }
+    }
+
+    function zoomGraph(factor) {
+      graphZoom = Math.max(0.03, Math.min(4.5, graphZoom * factor));
+      updateZoomLabel();
+      drawGraph();
+    }
+
+    function updateZoomLabel() {
+      const el = document.getElementById('zoom-level-label');
+      if (el) el.textContent = `${Math.round(graphZoom * 100)}%`;
+    }
+
+    function fitGraphView() {
+      const canvas = document.getElementById('graph-canvas');
+      const container = document.getElementById('graph-viewport');
+      if (!canvas || !container) return;
+      const W = container.clientWidth || 850;
+      const H = container.clientHeight || 520;
+
+      const nodeIds = Object.keys(graphPositions);
+      if (nodeIds.length === 0) return;
+
+      if (graphDimension === '3d') {
+        graphZoom = 1.05;
+        graphPanX = 0;
+        graphPanY = 0;
+        updateZoomLabel();
+        drawGraph();
+        return;
+      }
+
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      for (const id of nodeIds) {
+        const p = graphPositions[id];
+        if (!p) continue;
+        if (p.x < minX) minX = p.x;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.y > maxY) maxY = p.y;
+      }
+
+      const gw = Math.max(maxX - minX + 240, 500);
+      const gh = Math.max(maxY - minY + 240, 400);
+      const scaleX = (W - 80) / gw;
+      const scaleY = (H - 80) / gh;
+      graphZoom = Math.max(0.04, Math.min(Math.min(scaleX, scaleY), 1.6));
+
+      const cx = (minX + maxX) / 2;
+      const cy = (minY + maxY) / 2;
+      graphPanX = -cx * graphZoom;
+      graphPanY = -cy * graphZoom;
+
+      updateZoomLabel();
+      drawGraph();
+    }
+
+    function screenToWorld(sx, sy, canvas) {
+      const W = canvas.width;
+      const H = canvas.height;
+      return {
+        x: (sx - W / 2 - graphPanX) / graphZoom,
+        y: (sy - H / 2 - graphPanY) / graphZoom
+      };
+    }
+
+    function drawGraph() {
+      const canvas = document.getElementById('graph-canvas');
+      const container = document.getElementById('graph-viewport');
+      if (!canvas || !container) return;
+
+      const W = container.clientWidth || 850;
+      const H = container.clientHeight || 520;
+      if (canvas.width !== W || canvas.height !== H) {
+        canvas.width = W;
+        canvas.height = H;
+      }
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, W, H);
+
+      const count = nodesData.length;
+      if (count > 0 && Object.keys(graphPositions).length === 0) {
+        applyGraphLayout('galaxy');
+        return;
+      }
+
+      const selId = selectedRecord && selectedRecord.kind === 'node' ? selectedRecord.data.id : null;
+      const focusId = hoveredNodeId !== null ? hoveredNodeId : selId;
+      const { deg, neighbors } = computeGraphDegrees();
+      const nowMs = performance.now();
+      const wavePhase = ((nowMs - neuroWaveStart) * 0.0014) % 1.0;
+      const pulseFactor = 1.0 + 0.14 * Math.sin(nowMs * 0.005);
+
+      const exitBtn = document.getElementById('btn-exit-focus');
+      const focusDiv = document.getElementById('focus-divider');
+      if (exitBtn) {
+        if (selId !== null) {
+          exitBtn.style.display = 'inline-flex';
+          if (focusDiv) focusDiv.style.display = 'inline-block';
+          exitBtn.innerHTML = `✕ Exit: <span style="margin-left:4px;color:#fff">${escapeHtml(selectedRecord.data.name)}</span>`;
+        } else {
+          exitBtn.style.display = 'none';
+          if (focusDiv) focusDiv.style.display = 'none';
+        }
+      }
+
+      // ==========================================================
+      // 3D NEURO-COSMOS PERSPECTIVE RENDERING PIPELINE
+      // ==========================================================
+      if (graphDimension === '3d') {
+        projectedScreenNodes = {};
+
+        // Cosmic background nebula & 3D orbital reference rings
+        const bgGrad = ctx.createRadialGradient(W / 2, H / 2, 10, W / 2, H / 2, Math.max(W, H) * 0.65);
+        bgGrad.addColorStop(0, 'rgba(30, 14, 52, 0.32)');
+        bgGrad.addColorStop(0.5, 'rgba(8, 12, 26, 0.18)');
+        bgGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, W, H);
+
+        // Draw 3D equatorial horizon ring (projected 3D circle)
+        for (const ringR of [220, 440]) {
+          ctx.beginPath();
+          const segs = 64;
+          for (let i = 0; i <= segs; i++) {
+            const a = (2 * Math.PI * i) / segs;
+            const pr = project3D({ x: ringR * Math.cos(a), y: 0, z: ringR * Math.sin(a) }, W, H);
+            if (i === 0) ctx.moveTo(pr.sx, pr.sy);
+            else ctx.lineTo(pr.sx, pr.sy);
+          }
+          ctx.strokeStyle = 'rgba(168, 85, 247, 0.12)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        // HUD indicator for 3D Camera Orbit
+        ctx.fillStyle = 'rgba(216, 180, 254, 0.72)';
+        ctx.font = '11px Consolas, monospace';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText(
+          `3D NEURO-COSMOS (${graphStyle.toUpperCase()}) • Drag to Orbit (Yaw ${(camYaw * 57.3).toFixed(0)}° / Pitch ${(camPitch * 57.3).toFixed(0)}°) • Scroll to Zoom`,
+          14,
+          14
+        );
+
+        // Project all nodes
+        const renderNodes = [];
+        for (const n of nodesData) {
+          const p = graphPositions[n.id];
+          if (!p) continue;
+          const proj = project3D(p, W, H);
+          const nDeg = deg[n.id] || 0;
+          const baseR = getNodeRadius(n, nDeg);
+          const isHot = (n.activation_count || 0) >= 2 || (n.base_weight || 1.0) >= 0.95 || neuroWaveNodes.has(n.id);
+          const rScreen = Math.max(4, baseR * proj.scale * (isHot ? pulseFactor : 1.0));
+          const bw = Math.max(120, (n.name?.length || 8) * 8.5 + 28) * proj.scale;
+          const bh = 38 * proj.scale;
+          projectedScreenNodes[n.id] = { sx: proj.sx, sy: proj.sy, rScreen, bw, bh, depth: proj.depth, scale: proj.scale };
+          renderNodes.push({ node: n, proj, rScreen, bw, bh, nDeg });
+        }
+
+        // Sort synapses back-to-front by average depth
+        const renderSynapses = [];
+        for (const s of synapsesData) {
+          const pn1 = projectedScreenNodes[s.source_id];
+          const pn2 = projectedScreenNodes[s.target_id];
+          if (!pn1 || !pn2) continue;
+          renderSynapses.push({ syn: s, pn1, pn2, depth: (pn1.depth + pn2.depth) * 0.5 });
+        }
+        renderSynapses.sort((a, b) => b.depth - a.depth);
+
+        // 1. Draw 3D Synapses + Neuro-Debugger Excitation Pulses
+        for (const item of renderSynapses) {
+          const { syn: s, pn1, pn2 } = item;
+          const isConnected = focusId !== null && (s.source_id === focusId || s.target_id === focusId);
+          const isWaveSyn = neuroWaveActive && (neuroWaveNodes.has(s.source_id) && neuroWaveNodes.has(s.target_id));
+          const isDimmed = focusId !== null && !isConnected && !isWaveSyn;
+
+          ctx.beginPath();
+          ctx.moveTo(pn1.sx, pn1.sy);
+          ctx.lineTo(pn2.sx, pn2.sy);
+
+          if (isWaveSyn) {
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.92)';
+            ctx.lineWidth = Math.max(2.0, s.weight * 3.2 * ((pn1.scale + pn2.scale) * 0.5));
+            ctx.shadowColor = '#38bdf8';
+            ctx.shadowBlur = 10;
+          } else if (isConnected) {
+            ctx.strokeStyle = 'rgba(239, 68, 68, 0.95)';
+            ctx.lineWidth = Math.max(1.8, s.weight * 3.0 * ((pn1.scale + pn2.scale) * 0.5));
+            ctx.shadowColor = '#ef4444';
+            ctx.shadowBlur = 8;
+          } else if (isDimmed) {
+            ctx.strokeStyle = 'rgba(120, 35, 35, 0.10)';
+            ctx.lineWidth = 0.8;
+            ctx.shadowBlur = 0;
+          } else {
+            ctx.strokeStyle = 'rgba(168, 85, 247, 0.40)';
+            ctx.lineWidth = Math.max(0.9, s.weight * 1.8 * ((pn1.scale + pn2.scale) * 0.5));
+            ctx.shadowBlur = 0;
+          }
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+
+          // Animated Neuro-Debugger Energy Pulse Photon along active synapse
+          if (isWaveSyn || isConnected) {
+            const px = pn1.sx + (pn2.sx - pn1.sx) * wavePhase;
+            const py = pn1.sy + (pn2.sy - pn1.sy) * wavePhase;
+            ctx.beginPath();
+            ctx.arc(px, py, 3.6, 0, 2 * Math.PI);
+            ctx.fillStyle = isWaveSyn ? '#38bdf8' : '#f87171';
+            ctx.shadowColor = isWaveSyn ? '#38bdf8' : '#ef4444';
+            ctx.shadowBlur = 12;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+          }
+        }
+
+        // 2. Sort & Draw 3D Nodes back-to-front (Orbs OR Cards)
+        renderNodes.sort((a, b) => b.proj.depth - a.proj.depth);
+        for (const item of renderNodes) {
+          const { node: n, proj, rScreen, bw, bh, nDeg } = item;
+          const isSel = selId === n.id;
+          const isHov = hoveredNodeId === n.id;
+          const waveInfo = neuroWaveNodes.get(n.id);
+          const isNeighbor = focusId !== null && (neighbors[focusId]?.has(n.id) || n.id === focusId);
+          const isDimmed = focusId !== null && !isNeighbor && !waveInfo;
+          const color = getNodeColor(n);
+
+          if (graphStyle === 'orbs') {
+            // ==========================================
+            // 3D ORBS MODE
+            // ==========================================
+            if (waveInfo && !isDimmed) {
+              const rippleR = rScreen + 4 + ((wavePhase * 16) % 16);
+              ctx.beginPath();
+              ctx.arc(proj.sx, proj.sy, rippleR, 0, 2 * Math.PI);
+              ctx.strokeStyle = `rgba(56, 189, 248, ${Math.max(0.15, 0.85 - wavePhase * 0.7)})`;
+              ctx.lineWidth = 2.0;
+              ctx.stroke();
+            }
+
+            if (isSel || waveInfo) {
+              ctx.shadowColor = waveInfo ? '#38bdf8' : '#ef4444';
+              ctx.shadowBlur = 20;
+            } else if (isHov) {
+              ctx.shadowColor = color;
+              ctx.shadowBlur = 14;
+            } else {
+              ctx.shadowBlur = Math.min(12, (n.base_weight || 1.0) * 6);
+              ctx.shadowColor = color;
+            }
+
+            ctx.beginPath();
+            ctx.arc(proj.sx, proj.sy, rScreen, 0, 2 * Math.PI);
+            if (isDimmed) {
+              ctx.fillStyle = 'rgba(25, 25, 32, 0.35)';
+              ctx.fill();
+            } else {
+              const grad = ctx.createRadialGradient(
+                proj.sx - rScreen * 0.32,
+                proj.sy - rScreen * 0.32,
+                rScreen * 0.1,
+                proj.sx,
+                proj.sy,
+                rScreen
+              );
+              grad.addColorStop(0, '#ffffff');
+              grad.addColorStop(0.32, isSel ? '#ef4444' : (waveInfo ? '#38bdf8' : color));
+              grad.addColorStop(1, '#070913');
+              ctx.fillStyle = grad;
+              ctx.fill();
+              ctx.strokeStyle = isSel ? '#ffffff' : (waveInfo ? '#7dd3fc' : color);
+              ctx.lineWidth = isSel || waveInfo ? 2.2 : 1.2;
+              ctx.stroke();
+            }
+            ctx.shadowBlur = 0;
+
+            const shouldShowLabel = isSel || isHov || waveInfo || (proj.scale >= 0.45) || (nDeg >= 6 && proj.scale >= 0.2);
+            if (shouldShowLabel && !isDimmed) {
+              const label = waveInfo ? `${n.name} (${waveInfo.energy.toFixed(2)})` : n.name;
+              ctx.font = (isSel || isHov || waveInfo) ? '700 12px "Inter", "Segoe UI", sans-serif' : '500 11px "Inter", "Segoe UI", sans-serif';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'top';
+              const labelY = proj.sy + rScreen + 4;
+              const tw = ctx.measureText(label).width;
+              ctx.fillStyle = 'rgba(8, 8, 14, 0.82)';
+              ctx.fillRect(proj.sx - tw / 2 - 4, labelY - 1, tw + 8, 15);
+              ctx.fillStyle = waveInfo ? '#7dd3fc' : (isSel ? '#ffffff' : '#e2e8f0');
+              ctx.fillText(label, proj.sx, labelY);
+            }
+          } else {
+            // ==========================================
+            // 3D CARDS MODE (ORBS OFF, PERSPECTIVE CARDS ON)
+            // ==========================================
+            if (proj.scale < 0.22 && !isSel && !isHov && !waveInfo) {
+              ctx.fillStyle = isNeighbor ? '#ef4444' : (n.pinned ? '#f59e0b' : '#374151');
+              ctx.fillRect(proj.sx - 5, proj.sy - 3, 10, 6);
+              continue;
+            }
+
+            const bx = proj.sx - bw / 2;
+            const by = proj.sy - bh / 2;
+            const cornerR = Math.max(2, 6 * proj.scale);
+
+            ctx.beginPath();
+            ctx.roundRect(bx, by, bw, bh, cornerR);
+
+            if (isSel) {
+              ctx.fillStyle = '#260e12';
+              ctx.strokeStyle = '#ef4444';
+              ctx.lineWidth = 2.2;
+              ctx.shadowColor = '#ef4444';
+              ctx.shadowBlur = 14;
+            } else if (waveInfo) {
+              ctx.fillStyle = '#0c2336';
+              ctx.strokeStyle = '#38bdf8';
+              ctx.lineWidth = 2.0;
+              ctx.shadowColor = '#38bdf8';
+              ctx.shadowBlur = 12;
+            } else if (isHov) {
+              ctx.fillStyle = '#1c1c24';
+              ctx.strokeStyle = '#f87171';
+              ctx.lineWidth = 1.8;
+              ctx.shadowBlur = 8;
+            } else if (isDimmed) {
+              ctx.fillStyle = 'rgba(11, 11, 14, 0.40)';
+              ctx.strokeStyle = 'rgba(44, 44, 53, 0.30)';
+              ctx.lineWidth = 1;
+              ctx.shadowBlur = 0;
+            } else {
+              ctx.fillStyle = '#0b0b0e';
+              ctx.strokeStyle = n.pinned ? '#b45309' : (isNeighbor ? '#ef4444' : '#2c2c35');
+              ctx.lineWidth = isNeighbor ? 1.6 : 1.1;
+              ctx.shadowBlur = 0;
+            }
+
+            ctx.fill();
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            const typeFontPx = Math.max(7, Math.round(9.5 * proj.scale));
+            const nameFontPx = Math.max(8, Math.round(12 * proj.scale));
+
+            const typeStr = (n.node_type || 'ENTITY').toUpperCase();
+            ctx.fillStyle = isDimmed ? '#4b5563' : (isSel ? '#f87171' : (waveInfo ? '#7dd3fc' : '#9ca3af'));
+            ctx.font = `${typeFontPx}px Consolas, monospace`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(typeStr, proj.sx, by + Math.max(2, 5 * proj.scale));
+
+            ctx.fillStyle = isDimmed ? '#6b7280' : '#ffffff';
+            ctx.font = `600 ${nameFontPx}px "Inter", "Segoe UI", sans-serif`;
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(n.name, proj.sx, by + bh - Math.max(2, 5 * proj.scale));
+
+            if (n.pinned && !isDimmed) {
+              ctx.fillStyle = '#f59e0b';
+              ctx.beginPath();
+              ctx.arc(bx + 7 * proj.scale, by + 7 * proj.scale, Math.max(1.5, 2.8 * proj.scale), 0, 2 * Math.PI);
+              ctx.fill();
+            }
+            if (n.has_vector && !isDimmed) {
+              ctx.fillStyle = '#38bdf8';
+              ctx.beginPath();
+              ctx.arc(bx + bw - 7 * proj.scale, by + 7 * proj.scale, Math.max(1.5, 2.5 * proj.scale), 0, 2 * Math.PI);
+              ctx.fill();
+            }
+          }
+        }
+        return;
+      }
+
+      // ==========================================================
+      // 2D GRAPH TOPOLOGY RENDERING PIPELINE (+ NEURO-DEBUGGER WAVE)
+      // ==========================================================
+      ctx.save();
+      ctx.translate(W / 2 + graphPanX, H / 2 + graphPanY);
+      ctx.scale(graphZoom, graphZoom);
+
+      const margin = 200;
+      const vLeft = (-W / 2 - graphPanX) / graphZoom - margin;
+      const vRight = (W / 2 - graphPanX) / graphZoom + margin;
+      const vTop = (-H / 2 - graphPanY) / graphZoom - margin;
+      const vBottom = (H / 2 - graphPanY) / graphZoom + margin;
+
+      // 1. Draw Synapses
+      for (const s of synapsesData) {
+        const p1 = graphPositions[s.source_id];
+        const p2 = graphPositions[s.target_id];
+        if (!p1 || !p2) continue;
+
+        if (Math.max(p1.x, p2.x) < vLeft || Math.min(p1.x, p2.x) > vRight ||
+            Math.max(p1.y, p2.y) < vTop || Math.min(p1.y, p2.y) > vBottom) {
+          continue;
+        }
+
+        const isConnected = focusId !== null && (s.source_id === focusId || s.target_id === focusId);
+        const isWaveSyn = neuroWaveActive && (neuroWaveNodes.has(s.source_id) && neuroWaveNodes.has(s.target_id));
+        const isDimmed = focusId !== null && !isConnected && !isWaveSyn;
+
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+
+        if (isWaveSyn) {
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.95)';
+          ctx.lineWidth = Math.max(2.4, s.weight * 3.5);
+          ctx.shadowColor = '#38bdf8';
+          ctx.shadowBlur = 10;
+        } else if (isConnected) {
+          ctx.strokeStyle = 'rgba(239, 68, 68, 0.95)';
+          ctx.lineWidth = Math.max(2.2, s.weight * 3.4);
+          ctx.shadowColor = '#ef4444';
+          ctx.shadowBlur = 8;
+        } else if (isDimmed) {
+          ctx.strokeStyle = 'rgba(120, 35, 35, 0.12)';
+          ctx.lineWidth = 1;
+          ctx.shadowBlur = 0;
+        } else {
+          ctx.strokeStyle = 'rgba(239, 68, 68, 0.38)';
+          ctx.lineWidth = Math.max(1.1, s.weight * 1.9);
+          ctx.shadowBlur = 0;
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Animated Neuro-Debugger Photon Pulse in 2D
+        if (isWaveSyn) {
+          const px = p1.x + (p2.x - p1.x) * wavePhase;
+          const py = p1.y + (p2.y - p1.y) * wavePhase;
+          ctx.beginPath();
+          ctx.arc(px, py, 4.0, 0, 2 * Math.PI);
+          ctx.fillStyle = '#38bdf8';
+          ctx.shadowColor = '#38bdf8';
+          ctx.shadowBlur = 12;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+
+        // Direction Arrow
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (graphStyle === 'orbs') {
+          const r2 = getNodeRadius(null, deg[s.target_id] || 0);
+          if (dist > r2 + 15) {
+            const ax = p2.x - (dx / dist) * (r2 + 4);
+            const ay = p2.y - (dy / dist) * (r2 + 4);
+            const angle = Math.atan2(dy, dx);
+            ctx.save();
+            ctx.translate(ax, ay);
+            ctx.rotate(angle);
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-6, -3.5);
+            ctx.lineTo(-6, 3.5);
+            ctx.closePath();
+            ctx.fillStyle = isWaveSyn ? '#38bdf8' : (isConnected ? '#ef4444' : 'rgba(239, 68, 68, 0.65)');
+            ctx.fill();
+            ctx.restore();
+          }
+        } else {
+          if (dist > 80) {
+            const arrowDist = dist * 0.58;
+            const ax = p1.x + (dx / dist) * arrowDist;
+            const ay = p1.y + (dy / dist) * arrowDist;
+            const angle = Math.atan2(dy, dx);
+            ctx.save();
+            ctx.translate(ax, ay);
+            ctx.rotate(angle);
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-7, -4);
+            ctx.lineTo(-7, 4);
+            ctx.closePath();
+            ctx.fillStyle = isWaveSyn ? '#38bdf8' : (isConnected ? '#ef4444' : 'rgba(239, 68, 68, 0.6)');
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+
+        if ((graphZoom >= 0.45 || isConnected || isWaveSyn) && !isDimmed) {
+          const mx = (p1.x + p2.x) / 2;
+          const my = (p1.y + p2.y) / 2;
+          const label = `${s.relation} (${s.weight.toFixed(2)})`;
+          ctx.font = '10px Consolas, monospace';
+          const tw = ctx.measureText(label).width + 8;
+          ctx.fillStyle = isConnected || isWaveSyn ? '#1e0c10' : '#09090c';
+          ctx.fillRect(mx - tw / 2, my - 7, tw, 14);
+          ctx.strokeStyle = isWaveSyn ? '#38bdf8' : (isConnected ? '#ef4444' : '#262630');
+          ctx.lineWidth = 1;
+          ctx.strokeRect(mx - tw / 2, my - 7, tw, 14);
+
+          ctx.fillStyle = isWaveSyn ? '#7dd3fc' : (isConnected ? '#fca5a5' : '#cbd5e1');
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(label, mx, my);
+        }
+      }
+
+      // 2. Draw Nodes
+      for (const n of nodesData) {
+        const p = graphPositions[n.id];
+        if (!p) continue;
+
+        if (p.x < vLeft || p.x > vRight || p.y < vTop || p.y > vBottom) {
+          continue;
+        }
+
+        const isSel = selId === n.id;
+        const isHov = hoveredNodeId === n.id;
+        const waveInfo = neuroWaveNodes.get(n.id);
+        const isNeighbor = focusId !== null && (neighbors[focusId]?.has(n.id) || n.id === focusId);
+        const isDimmed = focusId !== null && !isNeighbor && !waveInfo;
+        const nDeg = deg[n.id] || 0;
+
+        if (graphStyle === 'orbs') {
+          const r = getNodeRadius(n, nDeg) * (waveInfo ? pulseFactor : 1.0);
+          const color = getNodeColor(n);
+
+          if (waveInfo && !isDimmed) {
+            const rippleR = r + 4 + ((wavePhase * 18) % 18);
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, rippleR, 0, 2 * Math.PI);
+            ctx.strokeStyle = `rgba(56, 189, 248, ${Math.max(0.15, 0.85 - wavePhase * 0.7)})`;
+            ctx.lineWidth = 2.0;
+            ctx.stroke();
+          }
+
+          if (isSel || waveInfo) {
+            ctx.shadowColor = waveInfo ? '#38bdf8' : '#ef4444';
+            ctx.shadowBlur = 18;
+          } else if (isHov) {
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 12;
+          } else if (isNeighbor) {
+            ctx.shadowColor = '#ef4444';
+            ctx.shadowBlur = 7;
+          } else {
+            ctx.shadowBlur = 0;
+          }
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, r, 0, 2 * Math.PI);
+
+          if (isDimmed) {
+            ctx.fillStyle = 'rgba(25, 25, 32, 0.4)';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(60, 60, 75, 0.3)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          } else {
+            const grad = ctx.createRadialGradient(p.x - r * 0.3, p.y - r * 0.3, r * 0.1, p.x, p.y, r);
+            if (isSel) {
+              grad.addColorStop(0, '#ffffff');
+              grad.addColorStop(0.35, '#ef4444');
+              grad.addColorStop(1, '#991b1b');
+            } else if (waveInfo) {
+              grad.addColorStop(0, '#ffffff');
+              grad.addColorStop(0.35, '#38bdf8');
+              grad.addColorStop(1, '#0c4a6e');
+            } else {
+              grad.addColorStop(0, '#ffffff');
+              grad.addColorStop(0.28, color);
+              grad.addColorStop(1, '#0b0f19');
+            }
+            ctx.fillStyle = grad;
+            ctx.fill();
+
+            ctx.strokeStyle = isSel ? '#ffffff' : (waveInfo ? '#7dd3fc' : (isNeighbor ? '#ef4444' : color));
+            ctx.lineWidth = isSel || waveInfo ? 2.5 : (isHov ? 2.0 : 1.2);
+            ctx.stroke();
+          }
+          ctx.shadowBlur = 0;
+
+          if (n.pinned && !isDimmed) {
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 1.8;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, r + 3, 0, 2 * Math.PI);
+            ctx.stroke();
+          }
+
+          if (n.has_vector && !isDimmed) {
+            ctx.fillStyle = '#38bdf8';
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, Math.max(2, r * 0.25), 0, 2 * Math.PI);
+            ctx.fill();
+          }
+
+          const shouldShowLabel = isSel || isHov || waveInfo || (graphZoom >= 0.45) || (nDeg >= 6 && graphZoom >= 0.18);
+          if (shouldShowLabel && !isDimmed) {
+            ctx.font = isSel || isHov || waveInfo ? '700 12px "Inter", "Segoe UI", sans-serif' : '500 11px "Inter", "Segoe UI", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+
+            const label = waveInfo ? `${n.name} (${waveInfo.energy.toFixed(2)})` : n.name;
+            const labelY = p.y + r + 4;
+            const textW = ctx.measureText(label).width;
+
+            ctx.fillStyle = 'rgba(10, 10, 15, 0.85)';
+            ctx.fillRect(p.x - textW / 2 - 4, labelY - 1, textW + 8, 15);
+
+            ctx.fillStyle = waveInfo ? '#7dd3fc' : (isSel || isHov ? '#ffffff' : '#cbd5e1');
+            ctx.fillText(label, p.x, labelY);
+          }
+        } else {
+          ctx.font = '600 12px "Inter", "Segoe UI", sans-serif';
+          const textWidth = ctx.measureText(n.name).width;
+          const bw = Math.max(120, textWidth + 28);
+          const bh = 38;
+          const bx = p.x - bw / 2;
+          const by = p.y - bh / 2;
+
+          if (graphZoom < 0.28 && !isSel && !isHov && !waveInfo) {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, isNeighbor ? 9 : 6, 0, 2 * Math.PI);
+            ctx.fillStyle = isNeighbor ? '#ef4444' : (n.pinned ? '#f59e0b' : '#374151');
+            ctx.fill();
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            continue;
+          }
+
+          ctx.beginPath();
+          ctx.roundRect(bx, by, bw, bh, 6);
+
+          if (isSel) {
+            ctx.fillStyle = '#260e12';
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 2.4;
+            ctx.shadowColor = '#ef4444';
+            ctx.shadowBlur = 12;
+          } else if (waveInfo) {
+            ctx.fillStyle = '#0c2336';
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 2.2;
+            ctx.shadowColor = '#38bdf8';
+            ctx.shadowBlur = 12;
+          } else if (isHov) {
+            ctx.fillStyle = '#1c1c24';
+            ctx.strokeStyle = '#f87171';
+            ctx.lineWidth = 2;
+            ctx.shadowBlur = 8;
+          } else if (isDimmed) {
+            ctx.fillStyle = 'rgba(11, 11, 14, 0.45)';
+            ctx.strokeStyle = 'rgba(44, 44, 53, 0.35)';
+            ctx.lineWidth = 1;
+            ctx.shadowBlur = 0;
+          } else {
+            ctx.fillStyle = '#0b0b0e';
+            ctx.strokeStyle = n.pinned ? '#b45309' : (isNeighbor ? '#ef4444' : '#2c2c35');
+            ctx.lineWidth = isNeighbor ? 1.8 : 1.2;
+            ctx.shadowBlur = 0;
+          }
+
+          ctx.fill();
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+
+          const typeStr = (n.node_type || 'ENTITY').toUpperCase();
+          ctx.fillStyle = isDimmed ? '#4b5563' : (isSel ? '#f87171' : (waveInfo ? '#7dd3fc' : '#9ca3af'));
+          ctx.font = '9.5px Consolas, monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'top';
+          ctx.fillText(typeStr, p.x, by + 5);
+
+          ctx.fillStyle = isDimmed ? '#6b7280' : '#ffffff';
+          ctx.font = '600 12px "Inter", "Segoe UI", sans-serif';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(n.name, p.x, by + bh - 5);
+
+          if (n.pinned) {
+            ctx.fillStyle = '#f59e0b';
+            ctx.beginPath();
+            ctx.arc(bx + 8, by + 8, 3, 0, 2 * Math.PI);
+            ctx.fill();
+          }
+          if (n.has_vector) {
+            ctx.fillStyle = '#38bdf8';
+            ctx.beginPath();
+            ctx.arc(bx + bw - 8, by + 8, 2.5, 0, 2 * Math.PI);
+            ctx.fill();
+          }
+        }
+      }
+
+      ctx.restore();
+    }
+
+    (function setupGraphEvents() {
+      const canvas = document.getElementById('graph-canvas');
+      if (!canvas) return;
+
+      function hitTestNode(mx, my) {
+        if (graphDimension === '3d') {
+          let bestNode = null;
+          let bestDepth = Infinity;
+          for (const n of nodesData) {
+            const pr = projectedScreenNodes[n.id];
+            if (!pr) continue;
+            if (graphStyle === 'orbs') {
+              const hitR = Math.max(pr.rScreen + 6, 12);
+              const dx = mx - pr.sx;
+              const dy = my - pr.sy;
+              if (dx * dx + dy * dy <= hitR * hitR && pr.depth < bestDepth) {
+                bestDepth = pr.depth;
+                bestNode = n;
+              }
+            } else {
+              const halfW = Math.max((pr.bw || 120) / 2, 16);
+              const halfH = Math.max((pr.bh || 38) / 2, 10);
+              if (Math.abs(mx - pr.sx) <= halfW && Math.abs(my - pr.sy) <= halfH && pr.depth < bestDepth) {
+                bestDepth = pr.depth;
+                bestNode = n;
+              }
+            }
+          }
+          return bestNode;
+        }
+
+        const wpos = screenToWorld(mx, my, canvas);
+        const { deg } = computeGraphDegrees();
+        for (let i = nodesData.length - 1; i >= 0; i--) {
+          const n = nodesData[i];
+          const p = graphPositions[n.id];
+          if (!p) continue;
+
+          if (graphStyle === 'orbs') {
+            const r = getNodeRadius(n, deg[n.id] || 0);
+            const hitR = Math.max(r + 5, 12);
+            const dx = wpos.x - p.x;
+            const dy = wpos.y - p.y;
+            if (dx * dx + dy * dy <= hitR * hitR) {
+              return n;
+            }
+          } else {
+            const bw = Math.max(120, (n.name?.length || 8) * 8.5 + 24);
+            const bh = 38;
+            if (Math.abs(wpos.x - p.x) <= bw / 2 && Math.abs(wpos.y - p.y) <= bh / 2) {
+              return n;
+            }
+          }
+        }
+        return null;
+      }
+
+      // Mouse Wheel Zoom
+      canvas.addEventListener('wheel', e => {
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+
+        if (graphDimension === '3d') {
+          const zoomDelta = e.deltaY < 0 ? 1.15 : 0.87;
+          graphZoom = Math.max(0.15, Math.min(4.5, graphZoom * zoomDelta));
+          updateZoomLabel();
+          drawGraph();
+          return;
+        }
+
+        const worldBefore = screenToWorld(mx, my, canvas);
+        const zoomDelta = e.deltaY < 0 ? 1.15 : 0.87;
+        graphZoom = Math.max(0.03, Math.min(4.5, graphZoom * zoomDelta));
+
+        const worldAfter = screenToWorld(mx, my, canvas);
+        graphPanX += (worldAfter.x - worldBefore.x) * graphZoom;
+        graphPanY += (worldAfter.y - worldBefore.y) * graphZoom;
+
+        updateZoomLabel();
+        drawGraph();
+      }, { passive: false });
+
+      let canvasMouseDownPos = null;
+      let canvasMouseDownNode = null;
+
+      canvas.addEventListener('mousedown', e => {
+        const rect = canvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        canvasMouseDownPos = { x: e.clientX, y: e.clientY };
+
+        const clickedNode = hitTestNode(mx, my);
+        canvasMouseDownNode = clickedNode;
+        if (clickedNode) {
+          draggingNodeId = clickedNode.id;
+          selectNodeRecord(clickedNode.id);
+          drawGraph();
+        } else if (graphDimension === '3d' && !e.shiftKey) {
+          isOrbiting3D = true;
+          orbitStartX = e.clientX;
+          orbitStartY = e.clientY;
+          canvas.style.cursor = 'grabbing';
+        } else {
+          isPanning = true;
+          panStartX = e.clientX;
+          panStartY = e.clientY;
+          canvas.style.cursor = 'grabbing';
+        }
+      });
+
+      window.addEventListener('mousemove', e => {
+        const rect = canvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+
+        if (draggingNodeId !== null) {
+          if (graphDimension === '2d') {
+            const wpos = screenToWorld(mx, my, canvas);
+            const oldZ = graphPositions[draggingNodeId]?.z || 0;
+            graphPositions[draggingNodeId] = { x: wpos.x, y: wpos.y, z: oldZ };
+            drawGraph();
+          }
+          return;
+        }
+
+        if (isOrbiting3D) {
+          const dx = e.clientX - orbitStartX;
+          const dy = e.clientY - orbitStartY;
+          camYaw += dx * 0.0065;
+          camPitch = Math.max(-1.45, Math.min(1.45, camPitch + dy * 0.0065));
+          orbitStartX = e.clientX;
+          orbitStartY = e.clientY;
+          drawGraph();
+          return;
+        }
+
+        if (isPanning) {
+          graphPanX += e.clientX - panStartX;
+          graphPanY += e.clientY - panStartY;
+          panStartX = e.clientX;
+          panStartY = e.clientY;
+          drawGraph();
+          return;
+        }
+
+        if (e.target === canvas) {
+          const hovered = hitTestNode(mx, my);
+          const hoveredId = hovered ? hovered.id : null;
+          if (hoveredId !== hoveredNodeId) {
+            hoveredNodeId = hoveredId;
+            canvas.style.cursor = hoveredNodeId !== null ? 'pointer' : 'grab';
+            drawGraph();
+          }
+        }
+      });
+
+      window.addEventListener('mouseup', e => {
+        if (canvasMouseDownPos && !canvasMouseDownNode) {
+          const dist = Math.hypot(e.clientX - canvasMouseDownPos.x, e.clientY - canvasMouseDownPos.y);
+          if (dist < 5) {
+            deselectRecord();
+          }
+        }
+        canvasMouseDownPos = null;
+        canvasMouseDownNode = null;
+        draggingNodeId = null;
+        isOrbiting3D = false;
+        if (isPanning) {
+          isPanning = false;
+          canvas.style.cursor = 'grab';
+        }
+      });
+
+      canvas.addEventListener('mouseleave', () => {
+        if (hoveredNodeId !== null) {
+          hoveredNodeId = null;
+          drawGraph();
+        }
+      });
+
+      window.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+          const openModalEl = document.querySelector('.modal-backdrop.open');
+          if (openModalEl) {
+            openModalEl.classList.remove('open');
+          } else if (selectedRecord) {
+            deselectRecord();
+          }
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        if (workspaceMode === 'graph') drawGraph();
+      });
+    })();
+
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    async function refreshAll() {
+      await refreshDaemonInfo();
+      await fetchHardwareProfile();
+      await refreshDatabases();
+      if (activeTopTab.startsWith('db:')) {
+        await refreshWorkspaceData();
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function escapeAttr(str) {
+      return String(str ?? '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    (async function init() {
+      renderTopTabs();
+      await refreshDaemonInfo();
+      await fetchHardwareProfile();
+      await refreshDatabases();
+    })();
+  </script>
+</body>
+</html>

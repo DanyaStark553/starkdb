@@ -1,0 +1,33 @@
+# Rust compilation artifacts
+/target/
+**/*.rs.bk
+
+# Binaries & packages (Binaries belong in GitHub Releases, not git history)
+/*.exe
+/*.old.exe
+/*.zip
+/*.tar.gz
+starkdb-workbench.exe
+starkdb.exe
+
+# Local database runtime files & state (Preserved locally, never pushed to Git)
+/databases/*
+!/databases/.gitkeep
+
+# System logs & debug traces
+*.log
+daemon_*.log
+err.txt
+
+# Python cache & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini
